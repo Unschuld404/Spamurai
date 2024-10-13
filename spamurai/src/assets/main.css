@@ -3,13 +3,47 @@
 body {
   margin: 0;
   box-sizing: border-box;
-
 }
 
 .view {
-  display: flex;
-  width: 80vw;
-  margin-left: auto;
-  margin-right: auto;
-  height: 90vh;
+  max-width: 60rem;
+  margin-inline: auto;
+}
+
+h1 {
+  font-size: clamp(2rem, 0.571rem + 3.81vw, 4rem);
+  color: var(--font-color);
+}
+
+i {
+  font-size: 4vh;
+  padding: 1vh;
+  color: var(--font-color)
+}
+
+button {
+  width: 20vw;
+  height: 20vw;
+  border-radius: 20vw;
+  border: none;
+  font-size: 10vw;
+  margin-top: 5vh;
+  background-color: var(--accent-color);
+  color: var(--background-color);
+}
+
+input {
+  width: 60vw;
+  height: 5vh;
+  border: none;
+  border-bottom: 2px solid var(--font-color);
+  font-size: 1.5rem;
+}
+
+input:focus {
+  outline: none;
+}
+
+::placeholder {
+  color: var(--primary-color);
 }

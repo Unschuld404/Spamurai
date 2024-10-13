@@ -6,9 +6,9 @@ import { RouterLink, RouterView } from 'vue-router'
   <header>
     <div class="wrapper">
       <nav>
-        <RouterLink to="/">Login</RouterLink>
-        <RouterLink to="/search">Suche</RouterLink>
-        <RouterLink to="/edit">Bearbeiten</RouterLink>
+        <RouterLink to="/"><i class='bx bx-user-circle'></i></RouterLink>
+        <RouterLink to="/search"><i class='bx bx-search-alt'></i></RouterLink>
+        <RouterLink to="/edit"><i class='bx bx-edit' ></i></RouterLink>
       </nav>
     </div>
   </header>
@@ -20,10 +20,9 @@ import { RouterLink, RouterView } from 'vue-router'
 header {
   display: flex;
   justify-content: center;
-  background-color: var(--accent-color);
   width: 100vw;
-  height: 5vh;
-  line-height: 5vh;
+  height: 6vh;
+  line-height: 6vh;
 }
 
 .wrapper {
