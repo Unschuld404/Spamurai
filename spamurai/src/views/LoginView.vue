@@ -4,7 +4,6 @@
 
 <template>
 <div class="view">
-  <img alt="Samurai-Wächter vor Spam" src="../assets/spamurai-icon.png">
   <form>
     <h1>Login</h1>
     <input class="login-input" type="text" name="user" id="user" placeholder="Benutzer" required/>
@@ -16,16 +15,13 @@
 
 <style scoped>
 
-img {
-  margin-top: 5vh;
-  max-width: 100%;
-}
-
 form {
   display: flex;
+  height: 80vh;
   flex-direction: column;
-  gap: 2vh;
   align-items: center;
+  justify-content: flex-end;
+  gap: 2vh;
 }
 
 </style>/

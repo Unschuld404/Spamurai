@@ -22,14 +22,14 @@ i {
 }
 
 button {
-  width: 20vw;
+  width: 30vw;
   height: 20vw;
   border-radius: 20vw;
   border: none;
-  font-size: 10vw;
+  font-size: 8vw;
   margin-top: 5vh;
   background-color: var(--accent-color);
-  color: var(--background-color);
+  color: var(--font-color);
 }
 
 input {
