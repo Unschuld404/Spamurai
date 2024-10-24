@@ -18,26 +18,18 @@ h1 {
 i {
   font-size: 4vh;
   padding: 1vh;
-  color: var(--font-color)
-}
-
-button {
-  width: 30vw;
-  height: 20vw;
-  border-radius: 20vw;
-  border: none;
-  font-size: 8vw;
-  margin-top: 5vh;
-  background-color: var(--accent-color);
-  color: var(--font-color);
+  color: var(--accent-color)
 }
 
 input {
-  width: 60vw;
+  width: 70vw;
   height: 5vh;
   border: none;
-  border-bottom: 2px solid var(--font-color);
+  border-bottom: 1px solid var(--primary-color);
   font-size: 1.5rem;
+  background-color: var(--background-color);
+  border-radius: 0;
+  text-align: center;
 }
 
 input:focus {
@@ -46,4 +38,34 @@ input:focus {
 
 ::placeholder {
   color: var(--primary-color);
+}
+
+button {
+  background-color: var(--accent-color);
+  height: 8vh;
+  width: 20vh;
+  margin-top: 2vh;
+  align-content: center;
+  text-align: center;
+  font-weight: bold;
+  border-radius: 4vh;
+  border: none;
+  font-size: 3vh;
+  color: var(--background-color);
+}
+
+
+li {
+  display: flex;
+  list-style: none;
+  font-size: 2.5vh;
+  line-height: 6vh;
+  margin-left: 0;
+  padding-left: 10px;
+  position: relative;
+  top: 3vh;
+}
+
+ul {
+  padding: 0;
 }
