@@ -1,29 +1,43 @@
 <script setup lang="ts">
 
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function navigateToSearch() {
+  router.push('/search'); // Navigiert zur Route "/search"
+}
+
 </script>
 
 <template>
-<div class="view">
-  <form>
-    <h1>Login</h1>
-    <input class="login-input" type="text" name="user" id="user" placeholder="Benutzer" required/>
-    <input class="login-input" type="password" name="password" id="password" placeholder="Passwort" required/>
-    <button>Anmelden</button>
+<div class="container">
+  <form class="shadow">
+    <h1 class="shadow">Login</h1>
+    <div class="login-input">
+      <input class="shadow" type="text" autocapitalize="off" name="user" id="user" placeholder="Benutzer" required/>
+      <input class="shadow" type="password" name="password" id="password" placeholder="Passwort" required/>
+    </div>
+    <div class="paper-frame">
+      <button @click="navigateToSearch">Los geht's</button>
+    </div>
   </form>
 </div>
 </template>
 
 <style scoped>
 
-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 2vh;
-  width: 100%;
-  position: absolute;
-  top: 50%;
+button {
+  height: 7vh;
+  width: 40vw;
+}
+
+h1 {
+  width: 80vw;
+}
+
+input {
+  width: 76vw;
 }
 
 </style>/

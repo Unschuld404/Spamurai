@@ -1,0 +1,39 @@
+a {
+    color: var(--background-color);
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--background-color);
+}
+
+i {
+    color: var(--font-color);
+    font-size: 2vh;
+}
+
+h1 {
+    text-align: center;
+    background-color: var(--primary-color);
+    border-radius: 1vh;
+    margin: 0;
+    padding: 1vh 0 1vh 0;
+    color: var(--background-color);
+    width: 100%;
+    cursor: default;
+}
+
+h2 {
+    font-size: 2vh;
+    margin: 0;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    margin-bottom: 2vh;
+}

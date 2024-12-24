@@ -1,33 +1,30 @@
 <script setup lang="ts">
 
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-
 const props = defineProps({
   show: Boolean, // Prop für die Sichtbarkeit
 });
 
 const emit = defineEmits(['close']); // Event, um den Dialog zu schließen
 
-function navigateToLogin() {
-  router.push('/login');
-}
-
 </script>
 
 <template>
-  <div>
+  <div v-if="show">
     <div class="frost"></div>
     <div class="paper popup">
-      <h1 class="shadow">Abmelden</h1>
-      <h2>Bist du dir sicher, dass du dich abmelden möchtest?</h2>
+      <h1 class="shadow">Weiterleitungen</h1>
+      <h2>für "spamurai@beispiel.de"</h2>
+      <ul>
+        <li class="select">postfach@unschuld.org</li>
+        <li class="select">dj@blackserver.de</li>
+      </ul>
+      <input class="shadow" type="email" autocapitalize="off" name="forward" id="forward" placeholder="neue Weiterleitung">
       <div class="row">
         <div class="paper-frame">
-          <button class="back" @click="$emit('close')">nein</button>
+          <button class="back" @click="$emit('close')">zurück</button>
         </div>
         <div class="paper-frame">
-          <button class="ok" @click="navigateToLogin">ja</button>
+          <button class="ok">ok</button>
         </div>
       </div>
     </div>
@@ -55,12 +52,6 @@ ul {
 input {
   width: 66vw;
   margin-bottom: 4vh;
-}
-
-h2 {
-  text-align: center;
-  width: 50vw;
-  padding: 4vh 0 4vh 0;
 }
 
 </style>/

@@ -1,183 +1,61 @@
 <script setup lang="ts">
-
+import { ref } from 'vue';
 import CreateNew from "@/components/CreateNew.vue";
-import EditExisting from "@/components/EditExisting.vue";
+import EditFowarding from "@/components/EditFowarding.vue";
+
+const showCreateNewDialog = ref(false); // Steuert die Sichtbarkeit des Dialogs
+const showEditForwarding = ref(false); // Steuert die Sichtbarkeit des Dialogs
+
+function copyToClipboard(event: MouseEvent) {
+  const text = (event.target as HTMLElement).innerText;
+  navigator.clipboard.writeText(text);
+}
+
 </script>
 
 <template>
-
-  <div class="search">
-    <div class="scroll-box">
+  <CreateNew :show="showCreateNewDialog" @close="showCreateNewDialog = false" />
+  <EditFowarding :show="showEditForwarding" @close="showEditForwarding = false" />
+  <div class="container">
+    <h1 class="shadow">Email Adressen</h1>
+    <div class="result">
       <ul>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">spamurai@email.de</div>
-        </li>
-        <li>
-          <div class="copy"><i class='bx bxs-copy'></i></div>
-          <div class="mail">i-love-you@forever</div>
-        </li>
+        <li class="select" @click="showEditForwarding = true">spamurai@email.de</li>
+        <li class="select" @click="showEditForwarding = true">spamurai@email.de</li>
+        <li class="select" @click="showEditForwarding = true">spamurai@email.de</li>
+        <li class="select" @click="showEditForwarding = true">spamurai@email.de</li>
+        <li class="select" @click="showEditForwarding = true">spamurai@email.de</li>
+        <li class="select" @click="showEditForwarding = true">spamurai@email.de</li>
+        <li class="select" @click="showEditForwarding = true">spamurai@email.de</li>
       </ul>
     </div>
-    <div class="search-bar">
-      <input type="text" name="alias" id="alias" placeholder=Suche>
-      <button>+</button>
+    <div class="row search">
+      <div class="paper-frame">
+        <button @click="showCreateNewDialog = true">neu</button>
+      </div>
+      <input class="shadow" type="text" autocapitalize="off" name="alias" id="alias" placeholder="Suche">
     </div>
+
   </div>
 </template>
 
 <style scoped>
 
-.search {
-  display: flex;
-  height: 90vh;
-  flex-direction: column;
-  align-items: center;
-  gap: 4vh;
+.row {
+  width: 100%;
+  justify-content: space-between;
 }
 
-.search-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 90%;
+input {
+  width: 60vw;
+}
+
+.paper {
+  width: 20vw;
 }
 
 button {
-  width: 6vh;
-  height: 6vh;
-  display: flex;
-  justify-content: center;
-  line-height: 5.7vh;
-}
-
-.scroll-box {
-  display: flex;
-  flex-direction: column-reverse;
-  border-radius: 5px;
-  width: 90vw;
-  height: 70vh;
-  overflow: scroll;
+  width: 100%;
 }
 
 </style>/

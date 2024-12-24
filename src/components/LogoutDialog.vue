@@ -12,12 +12,13 @@ const emit = defineEmits(['close']); // Event, um den Dialog zu schließen
 
 function navigateToLogin() {
   router.push('/login');
+  emit('close');
 }
 
 </script>
 
 <template>
-  <div>
+  <div v-if="show">
     <div class="frost"></div>
     <div class="paper popup">
       <h1 class="shadow">Abmelden</h1>

@@ -1,0 +1,29 @@
+.paper-frame {
+    background-color: var(--background-color);
+    padding: 0.5vh;
+    border-radius: 1vh; /* Abgerundete Ecken */
+    box-shadow:
+            -3px -3px 5px white, /* Obere und linke Kante (weißer Schatten) */
+            3px 3px 5px #b3b3b3; /* Untere und rechte Kante (dunkler Schatten) */
+}
+
+.paper {
+    background-color: var(--background-color);
+    padding: 0.5vh;
+    border-radius: 1vh; /* Abgerundete Ecken */
+}
+
+.frame {
+    width: 100%;
+    background-color: var(--background-color);
+    border-radius: 1vh; /* Abgerundete Ecken */
+    box-shadow:
+            -3px -3px 5px white, /* Obere und linke Kante (weißer Schatten) */
+            3px 3px 5px #b3b3b3; /* Untere und rechte Kante (dunkler Schatten) */
+}
+
+.shadow {
+    box-shadow:
+            -3px -3px 5px white, /* Obere und linke Kante (weißer Schatten) */
+            3px 3px 5px #b3b3b3; /* Untere und rechte Kante (dunkler Schatten) */
+}
