@@ -1,8 +1,8 @@
 :root {
-  --background-color: #EBE6E2;
-  --font-color: #67778c;
-  --primary-color: #CE999F;
-  --secondary-color: #82AAA2;
+  --background-color: #f3f2ee;
+  --font-color: rgb(76, 88, 103);
+  --primary-color: #82AAA2;
+  --secondary-color: #e54a5b;
 }
 
 body {
@@ -12,8 +12,7 @@ body {
 }
 
 .container {
-  height: 75vh;
-  width: 90vw;
+  height: 90dvh;
   margin: auto;
   position: relative;
   box-sizing: border-box;

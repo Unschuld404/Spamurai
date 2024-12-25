@@ -1,7 +1,8 @@
 .paper-frame {
+    height: 7dvh;
     background-color: var(--background-color);
-    padding: 0.5vh;
-    border-radius: 1vh; /* Abgerundete Ecken */
+    padding: 0.5dvh;
+    border-radius: 1dvh; /* Abgerundete Ecken */
     box-shadow:
             -3px -3px 5px white, /* Obere und linke Kante (weißer Schatten) */
             3px 3px 5px #b3b3b3; /* Untere und rechte Kante (dunkler Schatten) */
@@ -9,17 +10,8 @@
 
 .paper {
     background-color: var(--background-color);
-    padding: 0.5vh;
-    border-radius: 1vh; /* Abgerundete Ecken */
-}
-
-.frame {
-    width: 100%;
-    background-color: var(--background-color);
-    border-radius: 1vh; /* Abgerundete Ecken */
-    box-shadow:
-            -3px -3px 5px white, /* Obere und linke Kante (weißer Schatten) */
-            3px 3px 5px #b3b3b3; /* Untere und rechte Kante (dunkler Schatten) */
+    padding: 0.5dvh;
+    border-radius: 1dvh; /* Abgerundete Ecken */
 }
 
 .shadow {

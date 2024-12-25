@@ -1,10 +1,15 @@
 <script setup lang="ts">
 
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
 const props = defineProps({
   show: Boolean, // Prop für die Sichtbarkeit
 });
 
 const emit = defineEmits(['close']); // Event, um den Dialog zu schließen
+
 
 </script>
 
@@ -12,13 +17,10 @@ const emit = defineEmits(['close']); // Event, um den Dialog zu schließen
   <div v-if="show">
     <div class="frost"></div>
     <div class="paper popup">
-      <h1 class="shadow">Weiterleitungen</h1>
-      <h2>für "spamurai@beispiel.de"</h2>
-      <ul>
-        <li class="select">postfach@unschuld.org</li>
-        <li class="select">dj@blackserver.de</li>
-      </ul>
-      <input class="shadow" type="email" autocapitalize="off" name="forward" id="forward" placeholder="neue Weiterleitung">
+      <h1>Passwort ändern</h1>
+      <input type="text" class="shadow" placeholder="altes Passwort">
+      <input type="text" class="shadow" placeholder="neues Passwort">
+      <input type="text" class="shadow" placeholder="neues Passwort wiederholen">
       <div class="row">
         <div class="paper-frame">
           <button class="back" @click="$emit('close')">zurück</button>
@@ -34,24 +36,16 @@ const emit = defineEmits(['close']); // Event, um den Dialog zu schließen
 <style scoped>
 
 .row {
-  margin-bottom: 2vh;
-  width: 70vw;
-  justify-content: space-between;
+  gap: 5dvw;
 }
 
-h1 {
-  margin: 2vh;
-  width: 70vw;
-}
-
-ul {
-  margin: 4vh 0 4vh 0;
-  width: 70vw;
+button {
+  height: 100%;
+  text-align: center;
 }
 
 input {
-  width: 66vw;
-  margin-bottom: 4vh;
+  margin-bottom: 2dvh;
 }
 
 </style>/

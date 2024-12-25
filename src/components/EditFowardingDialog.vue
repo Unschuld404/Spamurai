@@ -1,35 +1,35 @@
 <script setup lang="ts">
 
-import { useRouter } from 'vue-router';
-
-const router = useRouter();
-
 const props = defineProps({
   show: Boolean, // Prop für die Sichtbarkeit
 });
 
 const emit = defineEmits(['close']); // Event, um den Dialog zu schließen
 
-function navigateToLogin() {
-  router.push('/login');
-}
-
 </script>
 
 <template>
-  <div>
+  <div v-if="show">
     <div class="frost"></div>
     <div class="paper popup">
-      <h1>Passwort ändern</h1>
-      <input type="text" class="shadow" placeholder="altes Passwort">
-      <input type="text" class="shadow" placeholder="neues Passwort">
-      <input type="text" class="shadow" placeholder="neues Passwort widerholen">
+      <h1>Weiterleitungen</h1>
+      <h2>für "spamurai@beispiel.de"</h2>
+      <ul>
+        <li class="select row">
+          <div>postfach@unschuld.org</div>
+          <i class='bx bxs-trash' ></i>
+        </li>
+        <li class="select row">
+          <div>dj@blackserver.de</div>
+          <i class='bx bxs-trash' ></i>
+        </li>
+      </ul>
       <div class="row">
         <div class="paper-frame">
           <button class="back" @click="$emit('close')">zurück</button>
         </div>
         <div class="paper-frame">
-          <button class="ok" @click="navigateToLogin">ok</button>
+          <button class="add">neu</button>
         </div>
       </div>
     </div>
@@ -39,16 +39,17 @@ function navigateToLogin() {
 <style scoped>
 
 .row {
+  justify-content: space-between;
   gap: 5dvw;
+}
+
+ul {
+  margin: 4dvh 0 4dvh 0;
+  width: 95%;
 }
 
 button {
   height: 100%;
-  text-align: center;
-}
-
-input {
-  margin-bottom: 2dvh;
 }
 
 </style>/

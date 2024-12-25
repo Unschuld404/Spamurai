@@ -2,48 +2,37 @@
 import { RouterLink, RouterView } from 'vue-router'
 import { ref } from 'vue';
 import LogoutDialog from "@/components/LogoutDialog.vue";
+import ChangePasswordDialog from "@/components/ChangePasswordDialog.vue";
 
 const showLogoutDialog = ref(false);
+const showChangePasswordDialog = ref(false);
 
 </script>
 
 <template>
   <LogoutDialog :show="showLogoutDialog" @close="showLogoutDialog = false" />
-  <header>
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/login"><i class='bx bx-user-circle'></i></RouterLink>
-        <RouterLink to="/search"><i class='bx bx-search-alt'></i></RouterLink>
-        <RouterLink to="/edit"><i class='bx bx-edit' ></i></RouterLink>
-        <i class='bx bxs-lock' @click="showLogoutDialog = true"></i>
-      </nav>
-    </div>
-  </header>
-
+  <ChangePasswordDialog :show="showChangePasswordDialog" @close="showChangePasswordDialog = false" />
+  <nav class="shadow">
+    <i class='bx bxs-cog navi'  @click="showChangePasswordDialog = true"></i>
+    <i class='bx bxs-lock navi' @click="showLogoutDialog = true"></i>
+  </nav>
   <RouterView />
 </template>
 
 <style scoped>
 
-.bxs-lock {
-  margin-top: 2vh;
-}
-
-header {
-  display: flex;
-  justify-content: center;
-  width: 100vw;
-  height: 6vh;
-  line-height: 6vh;
-}
-
-.wrapper {
-  width: 50vh;
-}
-
 nav {
   display: flex;
   justify-content: space-around;
+  height: 8dvh;
+  width: 100vw;
+  position: absolute;
+  bottom: 0;
+  z-index: 100;
+}
+
+navi {
+  color: #67778c;
 }
 
 </style>

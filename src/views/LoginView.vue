@@ -12,8 +12,9 @@ function navigateToSearch() {
 
 <template>
 <div class="container">
-  <form class="shadow">
-    <h1 class="shadow">Login</h1>
+  <img src="../assets/spamurai_rot.png" alt="Spamurai" />
+  <form>
+    <h1>Login</h1>
     <div class="login-input">
       <input class="shadow" type="text" autocapitalize="off" name="user" id="user" placeholder="Benutzer" required/>
       <input class="shadow" type="password" name="password" id="password" placeholder="Passwort" required/>
@@ -26,18 +27,5 @@ function navigateToSearch() {
 </template>
 
 <style scoped>
-
-button {
-  height: 7vh;
-  width: 40vw;
-}
-
-h1 {
-  width: 80vw;
-}
-
-input {
-  width: 76vw;
-}
 
 </style>/

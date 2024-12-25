@@ -12,18 +12,27 @@
  <div v-if="show">
    <div class="frost"></div>
    <div class="paper popup">
-     <h1 class="shadow">"neuerName"@</h1>
+     <h1>beispiel@</h1>
      <ul>
-       <li class="select">unschuld.org</li>
-       <li class="select">lisawichmann.de</li>
-       <li class="select">norddeutsch.org</li>
+       <li>
+         <div class="paper-frame fwd">
+           <button class="forward">unschuld.org</button>
+         </div>
+       </li>
+       <li>
+         <div class="paper-frame fwd">
+           <button class="forward">lisawichmann.de</button>
+         </div>
+       </li>
+       <li>
+         <div class="paper-frame fwd">
+           <button class="forward">norddeutsch.org</button>
+         </div>
+       </li>
      </ul>
      <div class="row">
        <div class="paper-frame">
          <button class="back" @click="$emit('close')">zurück</button>
-       </div>
-       <div class="paper-frame">
-         <button class="ok">ok</button>
        </div>
      </div>
    </div>
@@ -33,19 +42,18 @@
 <style scoped>
 
 .row {
-  margin-bottom: 2vh;
-  width: 70vw;
   justify-content: space-between;
-}
-
-h1 {
-  margin: 2vh;
-  width: 70vw;
+  gap: 5dvw;
 }
 
 ul {
-  margin: 4vh 0 4vh 0;
-  width: 70vw;
+  margin: 4dvh 0 4dvh 0;
+  width: 95%;
+}
+
+button {
+  width: 100%;
+  height: 100%;
 }
 
 </style>/
