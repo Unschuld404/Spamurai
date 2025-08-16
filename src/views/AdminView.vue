@@ -46,11 +46,4 @@ async function check() {
 
 <style scoped>
 
-main {
-  display: flex;
-  flex-direction: column;
-  width: 200px;
-  gap: 10px;
-}
-
 </style>

@@ -22,12 +22,12 @@ async function login() {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.text();
     console.log('OK:', data);
-    alert("Login Erfolgreich!");
     localStorage.setItem('auth', '1')
     localStorage.setItem('token', data)
     location.href = '/admin'
   } catch (err) {
     console.error('Login-Fehler:', err);
+    alert('Login fehlgeschlagen.')
   }
 }
 
@@ -36,7 +36,6 @@ async function login() {
 <template>
   <main>
     <form @submit.prevent="login">
-      <h1>Login</h1>
       <input type="text" placeholder="Benutzername" id="username"/>
       <input type="password" placeholder="Passwort" id="password"/>
       <button type="submit">Anmelden</button>
@@ -46,18 +45,8 @@ async function login() {
 
 <style scoped>
 
-main {
-  display: flex;
-  flex-direction: column;
-  width: 200px;
-  gap: 10px;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  width: 200px;
-  gap: 10px;
+button {
+  margin-top: 5rem;
 }
 
 </style>

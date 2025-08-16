@@ -1,0 +1,12 @@
+body {
+  color: var(--color-secondary);
+  font-family: Baghdad, sans-serif;
+}
+
+input, button {
+  font-size: 2rem;
+}
+
+h1 {
+  font-size: 2.5rem;
+}

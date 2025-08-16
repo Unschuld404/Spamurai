@@ -1,0 +1,10 @@
+main {
+  width: 100%;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  padding: 10vh 5vh 15vh 5vh;
+  gap: 2vh;
+}
