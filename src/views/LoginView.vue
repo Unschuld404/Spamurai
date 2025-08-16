@@ -1,16 +1,11 @@
 <script setup lang="ts">
 
-// function login() {
-//   localStorage.setItem('auth', '1')
-//   location.href = '/admin'
-// }
-
 const url = 'https://api.curatest.de/auth/v1/user';
 
 async function login() {
 
-  const username = ('admin');
-  const password = ('geheim');
+  const username = (document.getElementById('username') as HTMLInputElement).value;
+  const password = (document.getElementById('password') as HTMLInputElement).value;
 // Username:Passwort → Base64
   const credentials = btoa(`${username}:${password}`);
 
@@ -29,6 +24,7 @@ async function login() {
     console.log('OK:', data);
     alert("Login Erfolgreich!");
     localStorage.setItem('auth', '1')
+    localStorage.setItem('token', data)
     location.href = '/admin'
   } catch (err) {
     console.error('Login-Fehler:', err);
@@ -36,7 +32,7 @@ async function login() {
 }
 
 </script>
-£
+
 <template>
   <main>
     <form @submit.prevent="login">
@@ -49,6 +45,13 @@ async function login() {
 </template>
 
 <style scoped>
+
+main {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  gap: 10px;
+}
 
 form {
   display: flex;
