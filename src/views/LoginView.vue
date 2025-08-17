@@ -3,16 +3,17 @@
 import { ref } from 'vue';
 import spamuraiLogo from '@/assets/spamurai_logo.png';
 
+const username = ref('');
+const password = ref('');
+
 const url = 'https://api.blackserver.de/auth/user';
 const hasError = ref(false);
 // das ref<string> muss ich noch recherchieren
 const errorMessage = ref<string>('')
 
 async function login() {
-  const username = (document.getElementById('username') as HTMLInputElement).value;
-  const password = (document.getElementById('password') as HTMLInputElement).value;
 // Username:Passwort → Base64
-  const credentials = btoa(`${username}:${password}`);
+  const credentials = btoa(`${username.value}:${password.value}`);
 
   try {
     const res = await fetch(url, {
@@ -57,8 +58,8 @@ function translateError(err: unknown): string {
       <p v-if="errorMessage">{{ errorMessage }}</p>
     </div>
     <form @submit.prevent="login">
-      <input type="text" placeholder="Benutzername" id="username"/>
-      <input type="password" placeholder="Passwort" id="password"/>
+      <input type="text" placeholder="Benutzername" id="username" v-model="username"/>
+      <input type="password" placeholder="Passwort" id="password" v-model="password"/>
       <button type="submit" :class="{ error: hasError }">Anmelden</button>
     </form>
   </main>
