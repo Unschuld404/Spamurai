@@ -1,6 +1,10 @@
 <script setup lang="ts">
 
+import { ref } from 'vue'
+
 const url = 'https://api.curatest.de/auth/v1/user';
+
+const hasError = ref(false);
 
 async function login() {
 
@@ -26,8 +30,9 @@ async function login() {
     localStorage.setItem('token', data)
     location.href = '/admin'
   } catch (err) {
+    hasError.value = true
+    setTimeout(() => (hasError.value = false), 500)
     console.error('Login-Fehler:', err);
-    alert('Login fehlgeschlagen.')
   }
 }
 
@@ -38,7 +43,7 @@ async function login() {
     <form @submit.prevent="login">
       <input type="text" placeholder="Benutzername" id="username"/>
       <input type="password" placeholder="Passwort" id="password"/>
-      <button type="submit">Anmelden</button>
+      <button type="submit" :class="{ error: hasError }">Anmelden</button>
     </form>
   </main>
 </template>
@@ -46,7 +51,14 @@ async function login() {
 <style scoped>
 
 button {
-  margin-top: 5rem;
+  margin-top: 2rem;
+  transition: background-color 0.3s;
+}
+
+button.error {
+  background-color: var(--color-accent);
+  transition: background-color 0.1s;
+  color: var(--color-secondary);
 }
 
 </style>
