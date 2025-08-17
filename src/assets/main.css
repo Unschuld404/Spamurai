@@ -1,9 +1,14 @@
 * {
   background-color: var(--color-background);
   box-sizing: border-box;
+  scrollbar-width: none;
 }
 
 html, body {
   text-align: center;
   margin: 0;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }

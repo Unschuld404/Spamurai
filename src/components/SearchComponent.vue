@@ -6,6 +6,12 @@ const needle = ref('')
 const timer = ref<number | null>(null)
 const url = 'https://api.blackserver.de/spamurai/search/'
 const results = ref<string[]>([])
+const highlightedIndex = ref<number|null>(null)
+
+function highlight(i: number) {
+  highlightedIndex.value = i
+  setTimeout(() => (highlightedIndex.value = null), 1000)
+}
 
 watch(needle, () => {
   if (timer.value) clearTimeout(timer.value)
@@ -27,10 +33,26 @@ async function search() {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
   results.value = await res.json()
-  console.log("Suche erfolgreich.", results.value)
+  console.log("Suche erfolgreich.")
   }
   catch (err) {
     console.error("Search-Fehler:", err);
+  }
+}
+
+async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text)
+    console.log("Kopiert:", text)
+  } catch (err) {
+    // Fallback für Safari/iOS
+    const textarea = document.createElement('textarea')
+    textarea.value = text
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    console.log("Kopiert (Fallback):", text)
   }
 }
 
@@ -42,7 +64,13 @@ async function search() {
     <div class="listing">
       <ul>
         <li v-for="(item, i) in results" :key="i">
-          {{ item }}
+          <div class="item">
+            {{ item }}
+          </div>
+          <i class="bx bxs-copy"
+             :class="{ copied: highlightedIndex === i }"
+             @click="copyToClipboard(item, i); highlight(i)">
+          </i>
         </li>
       </ul>
     </div>
@@ -64,6 +92,8 @@ li {
   display: flex;
   align-items: center;
   padding-left: 1rem;
+  padding-right: 1rem;
+  justify-content: space-between;
 }
 
 li:last-of-type {
@@ -72,6 +102,11 @@ li:last-of-type {
 
 .listing {
   overflow-y: scroll;
+  scrollbar-width: none;
+}
+
+.listing::-webkit-scrollbar { /* Chrome/Safari */
+  display: none;
 }
 
 .container {
@@ -91,6 +126,14 @@ input {
 
 input::placeholder {
   color: var(--color-background);
+}
+
+.bxs-copy {
+  cursor: pointer;
+  transition: color .3s;
+}
+.bxs-copy.copied {
+  color: var(--color-accent);
 }
 
 </style>
