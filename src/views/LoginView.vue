@@ -28,6 +28,7 @@ async function login() {
     const data = await res.text();
     localStorage.setItem('auth', '1')
     localStorage.setItem('token', data)
+    //durch Router austauschen
     location.href = '/admin'
   } catch (err) {
     hasError.value = true
