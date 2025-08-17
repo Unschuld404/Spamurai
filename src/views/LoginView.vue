@@ -3,7 +3,7 @@
 import { ref } from 'vue';
 import spamuraiLogo from '@/assets/spamurai_logo.png';
 
-const url = 'https://api.curatest.de/auth/v1/user';
+const url = 'https://api.blackserver.de/auth/user';
 const hasError = ref(false);
 // das ref<string> muss ich noch recherchieren
 const errorMessage = ref<string>('')

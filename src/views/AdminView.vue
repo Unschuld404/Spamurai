@@ -1,5 +1,7 @@
 <script setup lang="ts">
 
+import SearchComponent from "@/components/SearchComponent.vue";
+
 function logout() {
   localStorage.removeItem('auth')
   localStorage.removeItem('token')
@@ -46,26 +48,14 @@ async function check() {
     <i class='bx bxs-door-open' @click="logout"></i>
   </header>
   <main>
-
+    <SearchComponent/>
   </main>
 </template>
 
 <style scoped>
 
-header {
-  height: 8vh;
-  width: 100%;
-  margin-bottom: 2rem;
-  display: flex;
-  padding: 2vw 5vw 0 5vw;
-  align-items: center;
-  justify-content: space-between;
-}
-
 main {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  height: 70vh;
 }
 
 </style>
