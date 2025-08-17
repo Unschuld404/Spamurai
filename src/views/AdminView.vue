@@ -8,6 +8,7 @@ function logout() {
 
 function tokenInfo() {
   console.log(localStorage.getItem('token'))
+  alert("Dein Token lautet: "+ localStorage.getItem('token'));
 }
 
 const url = 'https://api.curatest.de/webapi/auth/check'
@@ -26,24 +27,45 @@ async function check() {
 
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
+    localStorage.setItem('check', data)
     console.log(data);
+    alert("Du bist noch angemeldet.");
   }
   catch (err) {
     console.error('Check-Fehler:', err);
+    alert("Du bist nicht mehr angemeldet.");
   }
 }
 
 </script>
 
 <template>
+  <header>
+    <i class='bx bx-menu' @click="check"></i>
+    <i class='bx bxs-key' @click="tokenInfo"></i>
+    <i class='bx bxs-door-open' @click="logout"></i>
+  </header>
   <main>
-    <h1>Verwaltung</h1>
-    <button @click="logout">Logout</button>
-    <button @click="tokenInfo">Token?</button>
-    <button @click="check">Check!</button>
+
   </main>
 </template>
 
 <style scoped>
+
+header {
+  height: 8vh;
+  width: 100%;
+  margin-bottom: 2rem;
+  display: flex;
+  padding: 2vw 5vw 0 5vw;
+  align-items: center;
+  justify-content: space-between;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
 
 </style>

@@ -51,6 +51,7 @@ function translateError(err: unknown): string {
 
 <template>
   <main>
+    <h1>Spamurai</h1>
     <img :src="spamuraiLogo" alt="Spamurai"/>
     <div class="box">
       <p v-if="errorMessage">{{ errorMessage }}</p>

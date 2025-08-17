@@ -12,6 +12,8 @@ import './assets/components.css'
 import './assets/input.css'
 import './assets/button.css'
 
+import 'boxicons'
+
 const app = createApp(App)
 
 app.use(createPinia())
