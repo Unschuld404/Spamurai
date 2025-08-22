@@ -4,4 +4,5 @@ button {
   background-color: var(--color-secondary);
   color: var(--color-background);
   height: 4rem;
+  cursor: pointer;
 }

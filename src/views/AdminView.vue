@@ -42,9 +42,9 @@ async function check() {
 
 <template>
   <header>
-    <i class='bx bx-menu' @click="check"></i>
-    <i class='bx bxs-key' @click="tokenInfo"></i>
-    <i class='bx bxs-door-open' @click="logout"></i>
+    <span class="material-symbols-outlined" @click="check">menu</span>
+    <span class="material-symbols-outlined" @click="tokenInfo">vpn_key</span>
+    <span class="material-symbols-outlined" @click="logout">logout</span>
   </header>
   <main>
     <SearchComponent/>
