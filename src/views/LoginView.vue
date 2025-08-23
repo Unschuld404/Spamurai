@@ -1,19 +1,20 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import spamuraiLogo from '@/assets/spamurai_logo.png'
 
-import { ref } from 'vue';
-import spamuraiLogo from '@/assets/spamurai_logo.png';
+const username = ref('')
+const password = ref('')
 
-const username = ref('');
-const password = ref('');
+const router = useRouter()
 
-const url = 'https://api.blackserver.de/auth/user';
-const hasError = ref(false);
-// das ref<string> muss ich noch recherchieren
+const url = 'https://api.blackserver.de/auth/user'
+const hasError = ref(false)
 const errorMessage = ref<string>('')
 
 async function login() {
-// Username:Passwort → Base64
-  const credentials = btoa(`${username.value}:${password.value}`);
+  // Username:Passwort → Base64
+  const credentials = btoa(`${username.value}:${password.value}`)
 
   try {
     const res = await fetch(url, {
@@ -23,14 +24,13 @@ async function login() {
         'Content-Type': 'application/json',
         Authorization: `Basic ${credentials}`,
       },
-    });
+    })
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.text();
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const data = await res.text()
     localStorage.setItem('auth', '1')
     localStorage.setItem('token', data)
-    //durch Router austauschen
-    location.href = '/admin'
+    await router.push('/admin')
   } catch (err) {
     hasError.value = true
     setTimeout(() => (hasError.value = false), 500)
@@ -47,34 +47,32 @@ function translateError(err: unknown): string {
   }
   return 'Es ist ein unbekannter Fehler aufgetreten.'
 }
-
 </script>
 
 <template>
   <main>
     <h1>Spamurai</h1>
-    <img :src="spamuraiLogo" alt="Spamurai"/>
+    <img :src="spamuraiLogo" alt="Spamurai" />
     <div class="box">
       <p v-if="errorMessage">{{ errorMessage }}</p>
     </div>
     <form @submit.prevent="login">
-      <input type="text" placeholder="Benutzername" id="username" v-model="username"/>
-      <input type="password" placeholder="Passwort" id="password" v-model="password"/>
+      <input type="text" placeholder="Benutzername" id="username" v-model="username" />
+      <input type="password" placeholder="Passwort" id="password" v-model="password" />
       <button type="submit" :class="{ error: hasError }">Anmelden</button>
     </form>
   </main>
 </template>
 
 <style scoped>
-
 .box {
   height: 3rem;
   padding: 0;
   margin-top: 2vh;
 }
- p {
-   margin: 0;
- }
+p {
+  margin: 0;
+}
 
 button {
   margin-top: 1rem;
@@ -95,5 +93,4 @@ img {
 p {
   color: var(--color-accent);
 }
-
 </style>
