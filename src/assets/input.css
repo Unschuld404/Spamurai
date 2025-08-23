@@ -13,3 +13,22 @@ input {
 input::placeholder {
   color: var(--color-primary);
 }
+
+input[type="search"] {
+  color: var(--color-accent);
+  background-color: var(--color-secondary);
+  border-radius: 2rem;
+  text-align: center;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  margin-top: 2rem;
+  caret-color: var(--color-accent);
+}
+
+input[type="search"]::placeholder {
+  color: var(--color-primary);
+}
+
+input[type="search"]:focus::placeholder {
+  color: var(--color-secondary);
+}
