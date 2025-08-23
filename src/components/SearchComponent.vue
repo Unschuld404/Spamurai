@@ -1,12 +1,14 @@
 <script setup lang="ts">
 
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const needle = ref('')
 const timer = ref<number | null>(null)
 const url = 'https://api.blackserver.de/spamurai/search/'
 const results = ref<string[]>([])
 const highlightedIndex = ref<number|null>(null)
+const router = useRouter()
 
 function highlight(i: number) {
   highlightedIndex.value = i
@@ -56,13 +58,17 @@ async function copyToClipboard(text: string) {
   }
 }
 
+function addNew() {
+  router.push("/add-new")
+}
+
 </script>
 
 <template>
   <div class="container">
     <div class="search">
       <input type="search" placeholder="Suche" id="needle" v-model="needle" />
-      <button>+</button>
+      <button @click="addNew">+</button>
     </div>
     <div class="search-result">
       <ul>
