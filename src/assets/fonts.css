@@ -9,6 +9,7 @@ input, button {
 
 h1 {
   font-size: 2.5rem;
+  background-color: transparent;
 }
 
 .material-symbols-outlined {

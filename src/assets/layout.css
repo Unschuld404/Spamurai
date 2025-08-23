@@ -1,6 +1,7 @@
 main {
   width: 100%;
   place-items: center;
+  height: 70vh;
 }
 
 form {
@@ -8,14 +9,4 @@ form {
   flex-direction: column;
   padding: 0 5vh 0 5vh;
   gap: 2vh;
-}
-
-header {
-  height: 8vh;
-  width: 100%;
-  margin-bottom: 1rem;
-  display: flex;
-  padding: 2vw 5vw 0 5vw;
-  align-items: center;
-  justify-content: space-between;
 }

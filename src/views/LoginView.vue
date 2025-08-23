@@ -30,7 +30,7 @@ async function login() {
     const data = await res.text()
     localStorage.setItem('auth', '1')
     localStorage.setItem('token', data)
-    await router.push('/admin')
+    await router.push('/search')
   } catch (err) {
     hasError.value = true
     setTimeout(() => (hasError.value = false), 500)

@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import SearchComponent from '@/components/SearchComponent.vue'
 import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const url = 'https://api.blackserver.de/service/analyze/auth'
+
+function tokenInfo() {
+  console.log('Dein Token lautet: ' + localStorage.getItem('token'))
+}
 
 function logout() {
   localStorage.removeItem('auth')
   localStorage.removeItem('token')
   router.push("/login")
 }
-
-function tokenInfo() {
-  console.log('Dein Token lautet: ' + localStorage.getItem('token'))
-}
-
-const router = useRouter()
-
-const url = 'https://api.blackserver.de/service/analyze/auth'
 
 async function check() {
   console.log('check')
@@ -38,6 +36,7 @@ async function check() {
     console.log('Du bist nicht mehr angemeldet.')
   }
 }
+
 </script>
 
 <template>
@@ -46,13 +45,18 @@ async function check() {
     <span class="material-symbols-outlined" @click="tokenInfo">vpn_key</span>
     <span class="material-symbols-outlined" @click="logout">logout</span>
   </header>
-  <main>
-    <SearchComponent />
-  </main>
 </template>
 
 <style scoped>
-main {
-  height: 70vh;
+
+header {
+  height: 8vh;
+  width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+  padding: 2vw 5vw 0 5vw;
+  align-items: center;
+  justify-content: space-between;
 }
+
 </style>

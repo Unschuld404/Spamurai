@@ -65,29 +65,31 @@ function addNew() {
 </script>
 
 <template>
-  <div class="container">
-    <div class="search">
-      <input type="search" placeholder="Suche" id="needle" v-model="needle" />
-      <button @click="addNew">+</button>
-    </div>
-    <div class="search-result">
-      <ul>
-        <li v-for="(item, i) in results" :key="i">
-          <div class="item">
-            {{ item }}
-          </div>
-          <div class="copy" @click="copyToClipboard(item); highlight(i)">
+  <main>
+    <div class="container">
+      <div class="search">
+        <input type="search" placeholder="Suche" id="needle" v-model="needle" />
+        <button @click="addNew">+</button>
+      </div>
+      <div class="search-result">
+        <ul>
+          <li v-for="(item, i) in results" :key="i">
+            <div class="item">
+              {{ item }}
+            </div>
+            <div class="copy" @click="copyToClipboard(item); highlight(i)">
             <span
               class="material-symbols-outlined"
               :class="{ active: highlightedIndex === i }"
             >
             {{ highlightedIndex === i ? 'check' : 'shadow' }}
           </span>
-          </div>
-        </li>
-      </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
+  </main>
 </template>
 
 <style scoped>

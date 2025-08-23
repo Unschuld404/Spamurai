@@ -5,7 +5,7 @@ const router = createRouter({
   routes: [
     { path: '/', redirect: '/login' },
     { path: '/login', component: () => import('@/views/LoginView.vue') },
-    { path: '/admin', component: () => import('@/views/AdminView.vue') },
+    { path: '/search', component: () => import('@/views/SearchView.vue') },
     { path: '/add-new', component: () => import('@/views/AddEmailView.vue')},
   ],
 })
