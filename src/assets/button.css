@@ -1,6 +1,6 @@
 button {
   border: none;
-  border-radius: 10px;
+  border-radius: 0.75rem;
   background-color: var(--color-secondary);
   color: var(--color-background);
   height: 4rem;

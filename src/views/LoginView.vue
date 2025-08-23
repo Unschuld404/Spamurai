@@ -70,8 +70,14 @@ function translateError(err: unknown): string {
   padding: 0;
   margin-top: 2vh;
 }
+
+input {
+  margin-bottom: 2rem;
+}
+
 p {
   margin: 0;
+  color: var(--color-accent);
 }
 
 button {
@@ -90,7 +96,4 @@ img {
   max-height: 30vh;
 }
 
-p {
-  color: var(--color-accent);
-}
 </style>

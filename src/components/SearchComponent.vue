@@ -60,7 +60,10 @@ async function copyToClipboard(text: string) {
 
 <template>
   <div class="container">
-    <input type="search" placeholder="Suche" id="needle" v-model="needle" />
+    <div class="search">
+      <input type="search" placeholder="Suche" id="needle" v-model="needle" />
+      <button>+</button>
+    </div>
     <div class="search-result">
       <ul>
         <li v-for="(item, i) in results" :key="i">
@@ -82,6 +85,22 @@ async function copyToClipboard(text: string) {
 </template>
 
 <style scoped>
+
+button {
+  background: var(--color-accent);
+  color: var(--color-secondary);
+  font-weight: bold;
+  margin-top: 2rem;
+  width: 5rem;
+  padding: 0;
+}
+
+.search {
+  display: flex;
+  gap: 1rem;
+  padding: 0 1rem;
+  width: 100%;
+}
 
 .material-symbols-outlined {
   background-color: transparent;
@@ -126,9 +145,9 @@ li:last-of-type {
 }
 
 .search-result {
-  overflow-y: scroll;
+  overflow-y: auto;
   scrollbar-width: none;
-  height: 70vh;
+  max-height: 70vh;
 }
 
 .search-result::-webkit-scrollbar { /* Chrome/Safari */
