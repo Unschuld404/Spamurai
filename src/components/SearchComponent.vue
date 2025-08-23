@@ -67,10 +67,14 @@ async function copyToClipboard(text: string) {
           <div class="item">
             {{ item }}
           </div>
-          <i class="bx bxs-copy"
-             :class="{ copied: highlightedIndex === i }"
-             @click="copyToClipboard(item, i); highlight(i)">
-          </i>
+          <div class="copy" @click="copyToClipboard(item); highlight(i)">
+            <span
+              class="material-symbols-outlined"
+              :class="{ active: highlightedIndex === i }"
+            >
+            {{ highlightedIndex === i ? 'check' : 'shadow' }}
+          </span>
+          </div>
         </li>
       </ul>
     </div>
@@ -78,6 +82,21 @@ async function copyToClipboard(text: string) {
 </template>
 
 <style scoped>
+
+.material-symbols-outlined {
+  background-color: transparent;
+  font-size: 2rem;
+  transition: color 0.2s;
+}
+
+.material-symbols-outlined.active {
+  color: #6fd75f;
+}
+
+.copy {
+  display: flex;
+  align-items: center;
+}
 
 .container {
   display: flex;
