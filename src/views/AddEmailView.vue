@@ -1,42 +1,74 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearchStore } from '@/stores/search.ts'
 
 const router = useRouter()
 const searchStore = useSearchStore()
+const alias = ref(searchStore.needle)
+const domain = "@test.de"
+const url = 'https://api.blackserver.de/spamurai/add/'
 
 console.log(searchStore.needle)
 
-function goback() {
+function cancel() {
   router.push('/search')
 }
+
+async function addName() {
+  const name = alias.value + domain
+  const addNameUrl = url + encodeURIComponent(name)
+  try {
+    const res = await fetch(addNameUrl, {
+      method: 'GET',
+      headers: {
+        "Content-Type": "application/json; charset=UTF-8",
+        Authorization: `Bearer `+localStorage.getItem('token'),
+      },
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json()
+    console.log(data)
+  }
+  catch (err) {
+    console.error("Search-Fehler:", err);
+  }
+}
+
 </script>
 
 <template>
-  <div class="frame">
-    <h1>{{ searchStore.needle }}</h1>
-  </div>
-  <div class="frame">
-    <h1>Deine Domain</h1>
-  </div>
-  <span class="material-symbols-outlined" @click="goback">u_turn_left</span>
+  <h1>Neue E-Mail:</h1>
+  <h2>{{ alias }}{{ domain }}</h2>
+  <input type="text" v-model="alias" />
+  <footer>
+    <span class="material-symbols-outlined" @click="cancel">u_turn_left</span>
+    <span class="material-symbols-outlined" @click="addName">check</span>
+  </footer>
 </template>
 
 <style scoped>
+
+input {
+  position: absolute;
+  left: 0;
+  bottom: 8rem;
+  width: 100%;
+  text-align: center;
+}
+
 span {
   font-weight: bold;
   font-size: 4rem;
-  position: absolute;
-  bottom: 2rem;
-  left: 1rem;
 }
 
-.frame {
-  background-color: var(--color-accent);
-  margin: 2vh 1rem 0 1rem;
-  border-radius: 2rem;
+footer {
+  position: absolute;
+  bottom: 2rem;
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 1rem;
 }
+
 </style>
