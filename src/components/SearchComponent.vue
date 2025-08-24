@@ -4,35 +4,29 @@ import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearchStore } from '@/stores/search.ts'
 
-const needle = ref('')
-const timer = ref<number | null>(null)
-const url = 'https://api.blackserver.de/spamurai/search/'
-const results = ref<string[]>([])
 const router = useRouter()
 const searchStore = useSearchStore()
+const timer = ref<number | null>(null)
+const url = 'https://api.blackserver.de/spamurai/search/'
 
-watch(needle, () => {
+watch(() => searchStore.needle, () => {
   if (timer.value) clearTimeout(timer.value)
-  timer.value = setTimeout(search, 500) as unknown as number
+  timer.value = setTimeout(search, 500)
 })
 
 async function search() {
-  const searchUrl = url + needle.value
-
+  const searchUrl = url + encodeURIComponent(searchStore.needle)
   try {
     const res = await fetch(searchUrl, {
     method: 'GET',
     headers: {
-      ContentType: "application/json; charset=UTF-8",
+      "Content-Type": "application/json; charset=UTF-8",
       Authorization: `Bearer `+localStorage.getItem('token'),
     },
   });
-
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
   const data = await res.json()
   searchStore.setResults(data)
-  console.log("Suche erfolgreich.")
   }
   catch (err) {
     console.error("Search-Fehler:", err);
@@ -47,20 +41,18 @@ function addNew() {
 
 <template>
   <div class="search">
-    <input type="search" placeholder="Suche" id="needle" v-model="needle" />
-    <button @click="addNew">+</button>
+    <input type="search" placeholder="Suche" v-model="searchStore.needle" />
+    <span class="material-symbols-outlined" @click="addNew">add</span>
   </div>
 </template>
 
 <style scoped>
 
-button {
-  background: var(--color-accent);
-  color: var(--color-secondary);
-  font-weight: bold;
+span {
   margin-top: 2rem;
-  width: 5rem;
-  padding: 0;
+  align-content: center;
+  font-weight: bold;
+  font-size: 4rem;
 }
 
 .search {

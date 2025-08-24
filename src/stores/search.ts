@@ -2,11 +2,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useSearchStore = defineStore('search', () => {
+  const needle = ref('')
   const results = ref<string[]>([])
 
-  function setResults(newResults: string[]) {
-    results.value = newResults
+  function setResults(list: string[]) {
+    results.value = list
   }
 
-  return { results, setResults }
+  return { needle, results, setResults }
 })
+
