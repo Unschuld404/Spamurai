@@ -2,21 +2,20 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSearchStore } from '@/stores/search.ts'
+import RadioButtonComponent from '@/components/RadioButtonComponent.vue'
 
 const router = useRouter()
 const searchStore = useSearchStore()
 const alias = ref(searchStore.needle)
-const domain = "@test.de"
+const domain = ref("@unschuld.org")
 const url = 'https://api.blackserver.de/spamurai/add/'
-
-console.log(searchStore.needle)
 
 function cancel() {
   router.push('/search')
 }
 
 async function addName() {
-  const name = alias.value + domain
+  const name = alias.value + domain.value
   const addNameUrl = url + encodeURIComponent(name)
   try {
     const res = await fetch(addNameUrl, {
@@ -40,6 +39,21 @@ async function addName() {
 <template>
   <h1>Neue E-Mail:</h1>
   <h2>{{ alias }}{{ domain }}</h2>
+  <div class="choose-domain">
+    <div class="domain">
+      <input type="radio" id="unschuld" value="@unschuld.org" name="domain" v-model="domain" />
+      <label for="unschuld">@unschuld.org</label>
+    </div>
+    <div class="domain">
+      <input type="radio" id="blackserver" value="@blackserver.de" name="domain" v-model="domain" />
+      <label for="blackserver">@blackserver.de</label>
+    </div>
+    <div class="domain">
+      <input type="radio" id="test" value="@test.com" name="domain" v-model="domain"/>
+      <label for="test">@test.org</label>
+    </div>
+  </div>
+  <RadioButtonComponent />
   <input type="text" v-model="alias" />
   <footer>
     <span class="material-symbols-outlined" @click="cancel">u_turn_left</span>
@@ -49,7 +63,18 @@ async function addName() {
 
 <style scoped>
 
-input {
+.choose-domain {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid blue;
+  margin-bottom: 2rem;
+}
+
+.domain {
+  border: 1px solid green;
+}
+
+input[type=text] {
   position: absolute;
   left: 0;
   bottom: 8rem;
