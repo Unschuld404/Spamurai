@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import GlowingButton from '@/components/GlowingButton.vue'
+import GlowingBackButton from '@/components/GlowingBackButton.vue'
 
 const router = useRouter()
 </script>
@@ -14,13 +16,13 @@ const router = useRouter()
       <div class="row" style="justify-content: space-evenly; width: 100%">
         <div class="column">
           <div class="abo"><span class="material-symbols-outlined"> notifications_off </span></div>
-          <button @click="router.push('/')" class="cancel-btn">zurück</button>
+          <GlowingBackButton @click="router.push('/')" name="zurück" class="btn-small" />
         </div>
         <div class="column">
           <div class="abo active">
             <span class="material-symbols-outlined active"> notifications_active </span>
           </div>
-          <button>kopieren</button>
+          <GlowingButton name="Kopieren" class="btn-small" />
         </div>
       </div>
     </div>
@@ -28,16 +30,11 @@ const router = useRouter()
 </template>
 
 <style scoped>
-
 span {
   cursor: pointer;
   font-size: 50px;
   font-weight: bold;
   color: #9bc264;
-}
-
-button {
-  width: 130px;
 }
 
 .abo {
@@ -61,5 +58,4 @@ button {
 .column {
   align-items: center;
 }
-
 </style>

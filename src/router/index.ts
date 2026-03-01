@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.ts'
-import Login from '@/components/Login.vue'
-import Search from '@/components/Search.vue'
-import InviteUser from '@/components/InviteUser.vue'
-import NewEmail from '@/components/NewEmail.vue'
-import UserSettings from '@/components/UserSettings.vue'
-import EmailDetails from '@/components/EmailDetails.vue'
-import EmailDetailsProvided from '@/components/EmailDetailsProvided.vue'
+import Login from '@/views/Login.vue'
+import Search from '@/views/Search.vue'
+import InviteUser from '@/views/InviteUser.vue'
+import NewEmail from '@/views/NewEmail.vue'
+import UserSettings from '@/views/UserSettings.vue'
+import EmailDetails from '@/views/EmailDetails.vue'
+import EmailDetailsProvided from '@/views/EmailDetailsProvided.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

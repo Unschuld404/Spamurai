@@ -1,29 +1,20 @@
 <script setup lang="ts">
-import { useRouter } from "vue-router";
-import { useAuthStore} from '@/stores/auth.ts'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth.ts'
 
-const router = useRouter();
-const auth = useAuthStore();
+const router = useRouter()
+const auth = useAuthStore()
 
 function logout() {
-  auth.clear();
-  router.push('/login');
+  auth.clear()
+  router.push('/login')
 }
 </script>
 
 <template>
-  <nav class="nav-row" style="justify-content: space-between">
-    <div>Spamurai</div>
-    <div class="nav-row menu" v-if="auth.isAuthed">
-      <div class="clickable" @click="router.push('/email-details-provided')">
-        <span class="material-symbols-outlined"> notifications </span>
-      </div>
-      <div class="clickable" @click="router.push('/email-details')">
-        <span class="material-symbols-outlined"> article </span>
-      </div>
-      <div class="clickable" @click="router.push('/new-email')">
-        <span class="material-symbols-outlined"> forward_to_inbox </span>
-      </div>
+  <nav v-if="auth.isAuthed">
+    <h2>Spamurai</h2>
+    <div class="row">
       <div class="clickable" @click="router.push('/user-settings')">
         <span class="material-symbols-outlined"> settings </span>
       </div>
@@ -39,11 +30,23 @@ function logout() {
 </template>
 
 <style scoped>
-
-.nav-row {
+nav {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
+  height: 3rem;
+  align-items: center;
+  padding: 0 1rem;
 }
 
+span {
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: var(--color-secondary);
+  text-shadow: 0 0 5px var(--color-secondary-transparent);
+}
+
+.row {
+  width: 40%;
+  justify-content: space-between;
+}
 </style>

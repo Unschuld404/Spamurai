@@ -1,0 +1,30 @@
+input {
+  width: 300px;
+  height: 50px;
+  font-size: 20px;
+  font-family: inherit;
+  text-align: center;
+  padding: 0;
+}
+
+input {
+  border: 2px solid var(--color-primary-transparent);
+  background-color: var(--color-background-input);
+  color: var(--color-text);
+  caret-color: var(--color-text-transparent);
+  box-sizing: border-box;
+}
+
+input::placeholder {
+  color: var(--color-text-transparent);
+}
+
+input:focus {
+  outline: none;
+  border: 2px solid var(--color-primary);
+  box-shadow: 0 0 10px 5px var(--color-primary-transparent);
+}
+
+input:last-of-type {
+  margin-bottom: 20px;
+}

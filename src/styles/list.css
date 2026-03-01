@@ -1,0 +1,24 @@
+.list {
+  height: 450px;
+  width: 100%;
+  margin-top: 15px;
+  margin-bottom: 10px;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+list::-webkit-scrollbar {
+  display: none;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+li {
+  width: 100%;
+}

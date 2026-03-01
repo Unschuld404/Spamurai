@@ -1,0 +1,7 @@
+.container {
+  height: 75vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

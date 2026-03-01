@@ -1,29 +1,53 @@
+@import 'button.css';
+@import 'input.css';
+@import 'navbar.css';
+@import 'container.css';
+@import 'list.css';
+
+:root {
+  --color-background: #000000;
+  --color-background-input: #170016;
+  --color-text: #ffffff;
+  --color-text-transparent: rgba(255, 255, 255, 0.5);
+  --color-primary: #ff00f2;
+  --color-primary-transparent: rgba(255, 0, 242, 0.5);
+  --color-secondary: #efef0b;
+  --color-secondary-transparent: rgba(239, 239, 11, 0.75);
+  --color-accent: #ffffff;
+}
+
 html, body {
-    font-family: sans-serif;
+    font-family: "Courier New", Courier, monospace;
     box-sizing: border-box;
     font-size: 20px;
     padding: 0;
     margin: 0;
-    background-color: #fff6e5;
-    color: #9bc264;
+    background-color: #000000;
+    color: var(--color-text);
+    text-transform: uppercase;
 }
 
-nav {
-    position: sticky;
-    justify-content: space-between;
-    background-color: purple;
-    color: white;
-    padding: 5px;
-    cursor: default;
+h1 {
+  font-family: "gugi", Courier, monospace;
+  font-size: 3rem;
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px var(--color-secondary-transparent);
 }
 
-.clickable {
-    cursor: pointer;
+h2 {
+  font-family: "gugi", Courier, monospace;
+  font-size: 1.5rem;
+  color: var(--color-secondary);
+  text-shadow: 0 0 5px var(--color-secondary-transparent);
+  margin: 0;
 }
 
-.menu {
-    width: 70%;
-    justify-content: space-between;
+h1 {
+  font-family: "gugi", Courier, monospace;
+  font-size: 1rem;
+  color: var(--color-secondary);
+  text-shadow: 0 0 2px var(--color-secondary-transparent);
+  margin: 0;
 }
 
 .row {
@@ -41,75 +65,15 @@ nav {
     gap: 20px;
 }
 
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background-color: white;
-    border-radius: 30px;
-    margin-top: 10px;
-    padding: 0 5px 20px 5px;
-    width: 90vw;
-}
-
-h2 {
-    text-align: center;
-    font-size: 1.2rem;
-}
-
-input,
-button {
-    width: 250px;
-    height: 50px;
-    font-size: 20px;
-    text-align: center;
-    padding: 0;
-}
-
-input {
-    color: #9bc264;
-    border: none;
-    border-bottom: 2px solid #9bc264;
-    caret-color: #9bc264;
-}
-
-input::placeholder {
-    color: #d2e8b4;
-}
-
-input:focus {
-    outline: none;
-}
-
-input:last-of-type {
-    margin-bottom: 20px;
-}
-
-button {
-    background-color: #9bc264;
-    color: #ffffff;
-    font-weight: bold;
-    border: none;
-    border-radius: 5px;
-}
-
-button:active {
-    background-color: #789b46;
-}
-
-.cancel-btn {
-    background-color: hotpink;
-}
-
-.cancel-btn:active {
-    background-color: #d73d8a;
+.center {
+  align-items: center;
 }
 
 .commentary {
-    color: #789b46;
-    width: 90%;
-    border: 3px solid #f3e7d2;
-    border-radius: 10px;
-    padding: 0 15px 0 15px;
-    margin-bottom: 10px;
+  width: 80vw;
+  border: 1px solid var(--color-primary);
+  box-shadow: 0 0 10px var(--color-primary-transparent);
+  border-radius: 10px;
+  padding: 0 15px 0 15px;
+  margin: 20px 0;
 }
