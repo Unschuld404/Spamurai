@@ -6,7 +6,8 @@ import InviteUser from '@/views/InviteUser.vue'
 import NewEmail from '@/views/NewEmail.vue'
 import UserSettings from '@/views/UserSettings.vue'
 import EmailDetails from '@/views/EmailDetails.vue'
-import EmailDetailsProvided from '@/views/EmailDetailsProvided.vue'
+import PasswordSettings from '@/views/PasswordSettings.vue'
+import DefaultSettings from '@/views/DefaultSettings.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,9 +44,14 @@ const router = createRouter({
       component: EmailDetails,
     },
     {
-      path: '/email-details-provided',
-      name: 'Email Details Provided',
-      component: EmailDetailsProvided,
+      path: '/password-settings',
+      name: 'Password Settings',
+      component: PasswordSettings,
+    },
+    {
+      path: '/default-settings',
+      name: 'Default Settings',
+      component: DefaultSettings,
     },
   ],
 })

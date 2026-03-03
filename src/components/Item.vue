@@ -10,21 +10,7 @@ defineProps({
 </script>
 
 <template>
-  <div class="item inactive" v-if="!active">{{ email }}</div>
-  <div class="item target" v-if="hasTarget && !isOwner">
-    <span class="material-symbols-rounded"> notifications </span>
-    {{ email }}
-  </div>
-  <div class="item shared" v-if="isShared && active && !hasTarget">{{ email }}</div>
-  <div class="item space" v-if="inSpace && !isOwner && active && hasTarget">
-    <span class="material-symbols-rounded"> visibility </span>
-    {{ email }}
-  </div>
-  <div class="item space" v-if="inSpace && isOwner && active">
-    <span class="material-symbols-rounded"> group </span>
-    {{ email }}
-  </div>
-  <div class="item" v-if="isOwner && active && !inSpace">{{ email }}</div>
+  <div class="item">{{ email }}</div>
 </template>
 
 <style scoped>
@@ -42,16 +28,4 @@ span {
   cursor: pointer;
 }
 
-.inactive {
-  text-decoration: line-through;
-  color: var(--color-text-transparent);
-}
-
-.shared {
-  color: var(--color-text-transparent);
-}
-
-.space {
-  color: var(--color-text);
-}
 </style>

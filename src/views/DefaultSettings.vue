@@ -7,12 +7,9 @@ const router = useRouter()
 
 <template>
   <div class="container">
-    <h3>Neue Email</h3>
-    <GlowingBackButton @click="router.push('/')"  name="Zurück" />
+    <h3>Standards</h3>
+    <GlowingBackButton name="zurück" @click="router.push('/')" />
   </div>
 </template>
 
-<style scoped>
-
-
-</style>
+<style scoped></style>

@@ -2,6 +2,7 @@
 import { useRouter } from 'vue-router'
 import GlowingButton from '@/components/GlowingButton.vue'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
+import Domain from '@/components/Domain.vue'
 
 const router = useRouter()
 </script>
@@ -10,7 +11,7 @@ const router = useRouter()
   <div class="container">
     <form action=""
     class="gap">
-      <h1>Invite</h1>
+      <h3>Invite</h3>
       <input type="email" placeholder="E-Mail" />
       <input type="text" placeholder="Benutzername" />
       <input type="text" placeholder="Präfix" />
@@ -28,6 +29,5 @@ form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 50px;
 }
 </style>

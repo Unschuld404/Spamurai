@@ -57,7 +57,7 @@ watch(needle, (newValue) => {
     if (newValue.length > 0) {
       search()
     }
-  }, 1000)
+  }, 200)
 })
 </script>
 
