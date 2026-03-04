@@ -2,18 +2,20 @@
 const props = defineProps({
   name: String,
   type: String,
+  icon: String,
 })
 </script>
 
 <template>
-  <button class="btn">{{ name }}</button>
+  <button class="btn">
+    {{ name }}<span class="material-symbols-rounded">{{ icon }}</span>
+  </button>
 </template>
 
 <style scoped>
 .btn {
-  background-color: var(--color-background);
-  border: 3px solid var(--color-secondary);
-  box-shadow: 0 0 10px 2px var(--color-secondary-transparent);
+  background-color: var(--color-background-secondary);
+  border: 1px solid var(--color-secondary);
   color: var(--color-secondary);
 }
 </style>

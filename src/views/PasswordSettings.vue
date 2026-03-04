@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
+import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const router = useRouter()
 </script>
@@ -8,7 +9,7 @@ const router = useRouter()
 <template>
   <div class="container">
     <h3>Passwort-System</h3>
-    <GlowingBackButton name="zurück" @click="router.push('/')" />
+    <GlowingButtonBox icon="arrow_left_alt" class="btn-small" @click="router.push('/')" />
   </div>
 </template>
 

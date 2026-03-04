@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.ts'
 import GlowingButton from '@/components/GlowingButton.vue'
+import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const username = ref('')
 const password = ref('')
@@ -48,13 +49,23 @@ async function onSubmit() {
         <h1>Spamurai</h1>
         <div class="input-box">
           <span class="material-symbols-rounded"> identity_platform </span>
-          <input v-model="username" type="text" placeholder="Benutzername" />
+          <input
+            v-model="username"
+            type="text"
+            placeholder="Benutzername"
+            required
+          />
         </div>
         <div class="input-box">
           <span class="material-symbols-rounded"> key </span>
-          <input v-model="password" type="password" placeholder="Passwort" />
+          <input
+            v-model="password"
+            type="password"
+            placeholder="Passwort"
+            required
+          />
         </div>
-        <GlowingButton type="submit" name="Anmelden" />
+        <GlowingButtonBox type="submit" name="Login" class="btn-small" />
         <p v-if="error">{{ error }}</p>
       </div>
     </form>
@@ -90,5 +101,4 @@ input {
 .input-box:last-of-type {
   margin-bottom: 30px;
 }
-
 </style>

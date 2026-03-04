@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/auth.ts'
 import { useRouter } from 'vue-router'
 import GlowingButton from '@/components/GlowingButton.vue'
 import Item from '@/components/Item.vue'
+import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const needle = ref('')
 const results = ref<any[]>([])
@@ -63,6 +64,10 @@ watch(needle, (newValue) => {
 
 <template>
   <div class="container">
+    <div class="row gap">
+      <input type="text" placeholder="E-Mail" v-model="needle" />
+      <GlowingButtonBox @click="router.push('new-email')" name="+" class="btn-small" />
+    </div>
     <p v-if="loading">Lade ...</p>
     <p v-if="error">{{ error }}</p>
     <div class="list">
@@ -79,8 +84,6 @@ watch(needle, (newValue) => {
         </li>
       </ul>
     </div>
-    <input type="text" placeholder="E-Mail" v-model="needle" />
-    <GlowingButton @click="router.push('new-email')" name="Neu" />
   </div>
 </template>
 
@@ -89,5 +92,17 @@ watch(needle, (newValue) => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 100%;
+  padding-top: 1rem;
+}
+
+input {
+  width: 300px;
+}
+
+.btn-small {
+  width: 50px;
+  font-size: 1.5rem;
+  font-weight: bold;
 }
 </style>

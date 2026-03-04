@@ -6,7 +6,7 @@ defineProps({
 
 <template>
   <div class="box row">
-    {{ email }}<span class="material-symbols-rounded"> do_not_disturb_on </span>
+    {{ email }}<span class="material-symbols-rounded"> delete </span>
   </div>
 </template>
 

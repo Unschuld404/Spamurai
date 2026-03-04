@@ -1,23 +1,23 @@
 input {
   width: 300px;
   height: 50px;
-  font-size: 20px;
+  font-size: 1rem;
   font-family: inherit;
   text-align: center;
   padding: 0;
-  border-radius: 10px;
+  border-radius: 5px;
 }
 
 input {
-  border: 2px solid var(--color-primary-transparent);
-  background-color: var(--color-background-input);
-  color: var(--color-text);
-  caret-color: var(--color-text-transparent);
+  border: 1px solid rgb(244, 68, 73);
+  background-color: var(--color-background-primary);
+  color: var(--color-primary-placeholder);
+  caret-color: var(--color-primary-placeholder);
   box-sizing: border-box;
 }
 
 input::placeholder {
-  color: var(--color-text-transparent);
+  color: var(--color-primary-placeholder);
 }
 
 input:focus {

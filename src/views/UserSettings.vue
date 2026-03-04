@@ -31,41 +31,47 @@ function toggleEditEmailMode() {
 
 <template>
   <div class="container">
-    <h3>Benutzer-Name</h3>
-    <div class="column gap">
-      <div>deineEmail@unschuld.org</div>
-      <GlowingButtonBox
-        name="Benutzername ändern"
-        @click="toggleEditUserMode"
-        v-if="!editUserMode"
-      />
-      <input type="text" placeholder="neuer Benutzername" v-if="editUserMode" />
-      <div class="row" v-if="editUserMode">
-        <GlowingBackButton name="abbrechen" @click="toggleEditUserMode" class="btn-small" />
-        <GlowingButton name="speichern" @click="toggleEditUserMode" class="btn-small" />
-      </div>
+    <div class="column">
+      <h3>Benutzer-Name</h3>
+      <div class="column gap">
+        <div>deineEmail@unschuld.org</div>
+        <GlowingButtonBox
+          name="Benutzername ändern"
+          @click="toggleEditUserMode"
+          v-if="!editUserMode && !editPasswordMode && !editEmailMode"
+        />
+        <input type="text" placeholder="neuer Benutzername" v-if="editUserMode" />
+        <div class="row" v-if="editUserMode">
+          <GlowingBackButton icon="close" @click="toggleEditUserMode" class="btn-small" />
+          <GlowingButtonBox icon="check" @click="toggleEditUserMode" class="btn-small" />
+        </div>
 
-      <GlowingButtonBox name="Email ändern" @click="toggleEditEmailMode" v-if="!editEmailMode" />
-      <input type="text" placeholder="neue E-Mail" v-if="editEmailMode" />
-      <div class="row" v-if="editEmailMode">
-        <GlowingBackButton name="abbrechen" @click="toggleEditEmailMode" class="btn-small" />
-        <GlowingButton name="speichern" @click="toggleEditEmailMode" class="btn-small" />
-      </div>
+        <GlowingButtonBox
+          name="Email ändern"
+          @click="toggleEditEmailMode"
+          v-if="!editUserMode && !editPasswordMode && !editEmailMode"
+        />
+        <input type="text" placeholder="neue E-Mail" v-if="editEmailMode" />
+        <div class="row" v-if="editEmailMode">
+          <GlowingBackButton icon="close" @click="toggleEditEmailMode" class="btn-small" />
+          <GlowingButtonBox icon="check" @click="toggleEditEmailMode" class="btn-small" />
+        </div>
 
-      <GlowingButtonBox
-        name="Benutzername ändern"
-        @click="toggleEditPasswordMode"
-        v-if="!editPasswordMode"
-      />
-      <input type="text" placeholder="altes Passwort" v-if="editPasswordMode" />
-      <input type="text" placeholder="neues Passwort" v-if="editPasswordMode" />
-      <input type="text" placeholder="neues Passwort" v-if="editPasswordMode" />
-      <div class="row" v-if="editPasswordMode">
-        <GlowingBackButton name="abbrechen" @click="toggleEditPasswordMode" class="btn-small" />
-        <GlowingButton name="speichern" @click="toggleEditPasswordMode" class="btn-small" />
+        <GlowingButtonBox
+          name="Passwort ändern"
+          @click="toggleEditPasswordMode"
+          v-if="!editUserMode && !editPasswordMode && !editEmailMode"
+        />
+        <input type="password" placeholder="altes Passwort" v-if="editPasswordMode" />
+        <input type="password" placeholder="neues Passwort" v-if="editPasswordMode" />
+        <input type="password" placeholder="neues Passwort" v-if="editPasswordMode" />
+        <div class="row" v-if="editPasswordMode">
+          <GlowingBackButton icon="close" @click="toggleEditPasswordMode" class="btn-small" />
+          <GlowingButtonBox icon="check" @click="toggleEditPasswordMode" class="btn-small" />
+        </div>
       </div>
     </div>
-    <GlowingBackButton @click="router.push('/')" name="zurück" />
+    <GlowingBackButton @click="router.push('/')" icon="arrow_left_alt" class="btn-small" />
   </div>
 </template>
 
@@ -77,11 +83,12 @@ function toggleEditEmailMode() {
 }
 
 .column {
-  margin: 0.5rem 0 1rem 0;
+  align-items: center;
 }
 
 .row {
   justify-content: space-between;
+  width: 100%;
 }
 
 input {

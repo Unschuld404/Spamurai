@@ -28,42 +28,51 @@ function logout() {
     <h2>Spamurai</h2>
     <span class="material-symbols-rounded" @click="toggleMenu"> menu </span>
   </nav>
+  <div class="backdrop" v-if="menuOpen"></div>
   <div v-if="menuOpen" class="menu">
-    <Menu name="Konto" icon="account_circle" @click="router.push('/user-settings'); closeMenu()"/>
-    <Menu name="Passwörter" icon="key" @click="router.push('/password-settings'); closeMenu()"/>
-    <Menu name="Standards" icon="blur_linear" @click="router.push('/default-settings'); closeMenu()"/>
-    <Menu name="Invite" icon="person_add" @click="router.push('/invite-user'); closeMenu()" />
-    <Menu name="Abmelden" icon="door_open" @click="logout" />
+    <Menu
+      name="Konto"
+      icon="account_circle"
+      @click="
+        router.push('/user-settings');
+        closeMenu()
+      "
+    />
+    <Menu
+      name="Passwörter"
+      icon="key"
+      @click="
+        router.push('/password-settings');
+        closeMenu()
+      "
+    />
+    <Menu
+      name="Standards"
+      icon="blur_linear"
+      @click="
+        router.push('/default-settings');
+        closeMenu()
+      "
+    />
+    <Menu
+      name="Invite"
+      icon="person_add"
+      @click="
+        router.push('/invite-user');
+        closeMenu()
+      "
+    />
+    <Menu name="Abmelden" icon="door_open" @click="logout"/>
   </div>
   <RouterView />
 </template>
 
 <style scoped>
-.menu {
-  position: absolute;
-  right: 0;
-  width: 100vw;
-  height: 75vh;
-  background-color: var(--color-background);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  padding-bottom: 2rem;
-}
-
-nav {
-  display: flex;
-  justify-content: space-between;
-  height: 3rem;
-  align-items: center;
-  padding: 0 1rem;
-}
-
 span {
   cursor: pointer;
   font-size: 2rem;
   font-weight: bold;
-  color: var(--color-secondary);
-  text-shadow: 0 0 3px var(--color-secondary-transparent);
+  color: var(--color-primary);
+  text-shadow: 0 0 2px var(--color-primary-transparent);
 }
 </style>
