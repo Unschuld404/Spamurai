@@ -8,6 +8,8 @@ import type { Preferences } from '@/types/preferences.type.ts'
 import type { Host } from '@/types/config.type.ts'
 import { getPreferences } from '@/api/preferences.api.ts'
 import { getConfig } from '@/api/config.api.ts'
+import { setPreferences } from '@/api/setPreferences.api.ts'
+import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const router = useRouter()
 
@@ -16,15 +18,32 @@ const preferences = ref<Preferences>()
 const config = ref<Host[]>([])
 const selectedHost = ref<Host | null>(null)
 
+const selectedDomainId = ref<number | null>(null)
+const selectedPrefixId = ref<number | null>(null)
+
 onMounted(async () => {
   try {
     config.value = await getConfig()
     domains.value = await getDomains()
     preferences.value = await getPreferences()
     selectedHost.value = config.value[0] ?? null
-    console.log(config.value)
+    selectedDomainId.value = preferences.value.default_domain_id
+    selectedPrefixId.value = preferences.value.default_prefix_id
   } catch (error) {}
 })
+
+async function savePreferences() {
+  if (selectedDomainId.value === null || selectedPrefixId.value === null) return
+
+  try {
+    preferences.value = await setPreferences(
+      selectedDomainId.value,
+      selectedPrefixId.value,
+    )
+  } catch (error) {
+    console.error(error)
+  }
+}
 </script>
 
 <template>
@@ -34,24 +53,19 @@ onMounted(async () => {
       <div class="row">
         <h3>Host:</h3>
         <select v-model="selectedHost">
-          <option
-            v-for="h in config"
-            :key="h.id"
-            :value="h"
-          >
+          <option v-for="h in config" :key="h.id" :value="h">
             {{ h.caption }}
           </option>
         </select>
       </div>
       <div class="row">
         <h3>Domain:</h3>
-        <select>
+        <select v-model="selectedDomainId">
           <option
             v-for="d in selectedHost?.domain"
             :key="d.id"
             :name="d.name"
             :value="d.id"
-            :selected="preferences?.default_domain_id === d.id"
           >
             {{ d.name }}
           </option>
@@ -59,20 +73,22 @@ onMounted(async () => {
       </div>
       <div class="row">
         <h3>Prefix:</h3>
-        <select>
+        <select v-model="selectedPrefixId">
           <option
             v-for="p in selectedHost?.prefix"
             :key="p.id"
             :name="p.name"
             :value="p.id"
-            :selected="preferences?.default_prefix_id === p.id"
           >
             {{ p.name }}
           </option>
         </select>
       </div>
     </div>
-    <GlowingBackButton icon="arrow_left_alt" class="btn-small" @click="router.push('/')" />
+    <div class="row">
+      <GlowingBackButton icon="arrow_left_alt" class="btn-small" @click="router.push('/')" />
+      <GlowingButtonBox icon="save" class="btn-small" @click="savePreferences()" />
+    </div>
   </div>
 </template>
 
