@@ -1,12 +1,12 @@
 <script setup lang="ts">
 defineProps({
-  email: String,
+  caption: String,
 })
 </script>
 
 <template>
   <div class="box row">
-    {{ email }}<span class="material-symbols-rounded"> delete </span>
+    {{ caption }}<span class="material-symbols-rounded"> delete </span>
   </div>
 </template>
 
@@ -14,7 +14,7 @@ defineProps({
 .box {
   border: 1px solid var(--color-primary);
   box-shadow: 0 0 10px var(--color-primary-transparent);
-  height: 2rem;
+  height: 2.5rem;
   align-items: center;
   padding: 0 0.5rem;
   border-radius: 10px;

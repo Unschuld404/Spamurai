@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.ts'
-import GlowingButton from '@/components/GlowingButton.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const username = ref('')
@@ -38,6 +37,7 @@ async function onSubmit() {
   }
 
   auth.setToken(token)
+  auth.setUsername(username.value)
   await router.replace(typeof route.query.redirect === 'string' ? route.query.redirect : '/')
 }
 </script>
@@ -49,21 +49,11 @@ async function onSubmit() {
         <h1>Spamurai</h1>
         <div class="input-box">
           <span class="material-symbols-rounded"> identity_platform </span>
-          <input
-            v-model="username"
-            type="text"
-            placeholder="Benutzername"
-            required
-          />
+          <input v-model="username" type="text" placeholder="Benutzername" required />
         </div>
         <div class="input-box">
           <span class="material-symbols-rounded"> key </span>
-          <input
-            v-model="password"
-            type="password"
-            placeholder="Passwort"
-            required
-          />
+          <input v-model="password" type="password" placeholder="Passwort" required />
         </div>
         <GlowingButtonBox type="submit" name="Login" class="btn-small" />
         <p v-if="error">{{ error }}</p>
@@ -78,8 +68,8 @@ async function onSubmit() {
 }
 
 span {
-  color: var(--color-primary);
-  text-shadow: 0 0 10px var(--color-primary);
+  color: var(--color-secondary);
+  text-shadow: 0 0 10px var(--color-secondary);
   font-size: 1.5rem;
   padding-left: 0.5rem;
   z-index: 1;

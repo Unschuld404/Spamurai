@@ -1,61 +1,35 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
-import GlowingButton from '@/components/GlowingButton.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
+import { getUser } from '@/api/user.api.ts'
+import type { User } from '@/types/user.type.ts'
 
 const router = useRouter()
 const editUserMode = ref(false)
 const editPasswordMode = ref(false)
 const editEmailMode = ref(false)
-
-function toggleEditUserMode() {
-  editUserMode.value = !editUserMode.value
-  editPasswordMode.value = false
-  editEmailMode.value = false
-}
+const user = ref<User | null>(null)
 
 function toggleEditPasswordMode() {
   editPasswordMode.value = !editPasswordMode.value
-  editUserMode.value = false
-  editEmailMode.value = false
 }
 
-function toggleEditEmailMode() {
-  editEmailMode.value = !editEmailMode.value
-  editPasswordMode.value = false
-  editUserMode.value = false
-}
+onMounted(async() => {
+  try {
+    user.value = await getUser()
+  } catch (error) {}
+})
 </script>
 
 <template>
   <div class="container">
     <div class="column">
-      <h3>Benutzer-Name</h3>
+      <h3>Benutzer-Name: {{ user?.name }}</h3>
       <div class="column gap">
-        <div>deineEmail@unschuld.org</div>
-        <GlowingButtonBox
-          name="Benutzername ändern"
-          @click="toggleEditUserMode"
-          v-if="!editUserMode && !editPasswordMode && !editEmailMode"
-        />
+        <p>{{ user?.email }}</p>
         <input type="text" placeholder="neuer Benutzername" v-if="editUserMode" />
-        <div class="row" v-if="editUserMode">
-          <GlowingBackButton icon="close" @click="toggleEditUserMode" class="btn-small" />
-          <GlowingButtonBox icon="check" @click="toggleEditUserMode" class="btn-small" />
-        </div>
-
-        <GlowingButtonBox
-          name="Email ändern"
-          @click="toggleEditEmailMode"
-          v-if="!editUserMode && !editPasswordMode && !editEmailMode"
-        />
-        <input type="text" placeholder="neue E-Mail" v-if="editEmailMode" />
-        <div class="row" v-if="editEmailMode">
-          <GlowingBackButton icon="close" @click="toggleEditEmailMode" class="btn-small" />
-          <GlowingButtonBox icon="check" @click="toggleEditEmailMode" class="btn-small" />
-        </div>
 
         <GlowingButtonBox
           name="Passwort ändern"

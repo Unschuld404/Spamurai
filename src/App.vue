@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.ts'
+import {useSearchStore} from '@/stores/search.ts'
 import { ref } from 'vue'
 import Menu from '@/components/Menu.vue'
 
 const menuOpen = ref(false)
 const router = useRouter()
 const auth = useAuthStore()
+const searchStore = useSearchStore()
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
@@ -19,6 +21,7 @@ function closeMenu() {
 function logout() {
   closeMenu()
   auth.clear()
+  searchStore.clear()
   router.push('/login')
 }
 </script>

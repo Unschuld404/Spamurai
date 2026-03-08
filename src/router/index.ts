@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.ts'
+import { useEmailStore } from '@/stores/email.ts'
 import Login from '@/views/Login.vue'
 import Search from '@/views/Search.vue'
 import InviteUser from '@/views/InviteUser.vue'
@@ -39,7 +40,7 @@ const router = createRouter({
       component: UserSettings,
     },
     {
-      path: '/email-details',
+      path: '/email-details/:id',
       name: 'Email Details',
       component: EmailDetails,
     },
@@ -58,6 +59,11 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const auth = useAuthStore()
+  const emailStore = useEmailStore()
+
+  if (to.params.id) {
+    emailStore.setID(Number(to.params.id))
+  }
 
   if (to.meta.requiresAuth && !auth.isAuthed) {
     return { path: "/login", query: { redirect: to.fullPath}}

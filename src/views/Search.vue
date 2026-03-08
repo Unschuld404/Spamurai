@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth.ts'
+import { useSearchStore } from '@/stores/search.ts'
+import { useEmailStore } from '@/stores/email.ts'
 import { useRouter } from 'vue-router'
-import GlowingButton from '@/components/GlowingButton.vue'
 import Item from '@/components/Item.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
-const needle = ref('')
+const needle = computed({
+  get: () => searchStore.needle,
+  set: (v: string) => searchStore.setNeedle(v),
+})
+
 const results = ref<any[]>([])
 const auth = useAuthStore()
+const searchStore = useSearchStore()
+const emailStore = useEmailStore()
 const loading = ref<boolean>(false)
 const error = ref<string | null>(null)
 const router = useRouter()
 
-// Suchfunktion über API
 async function search() {
   error.value = null
   results.value = []
@@ -57,22 +63,39 @@ watch(needle, (newValue) => {
   timeout = setTimeout(() => {
     if (newValue.length > 0) {
       search()
+      searchStore.setNeedle(needle.value)
     }
   }, 200)
 })
+
+onMounted(() => {
+  if (needle) {
+    search()
+  }
+})
+
+function newEmail() {
+  searchStore.setNeedle(needle.value)
+  searchStore.goEdit()
+  router.push('new-email')
+}
+
+function openEmailDetails(id: number) {
+  emailStore.setID(id)
+  console.log('Ich merke mir die ID: ' + id)
+  router.push(`/email-details/${id}`)
+}
 </script>
 
 <template>
   <div class="container">
     <div class="row gap">
       <input type="text" placeholder="E-Mail" v-model="needle" />
-      <GlowingButtonBox @click="router.push('new-email')" name="+" class="btn-small" />
+      <GlowingButtonBox @click="newEmail" name="+" class="btn-small" />
     </div>
-    <p v-if="loading">Lade ...</p>
-    <p v-if="error">{{ error }}</p>
     <div class="list">
       <ul>
-        <li v-for="item in results" :key="item.id" @click="router.push('/email-details')">
+        <li v-for="item in results" :key="item.id" @click="openEmailDetails(item?.id)">
           <Item
             :email="item.email"
             :active="item.active"

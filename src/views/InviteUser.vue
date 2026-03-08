@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import GlowingButton from '@/components/GlowingButton.vue'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
-import Domain from '@/components/Domain.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const router = useRouter()
