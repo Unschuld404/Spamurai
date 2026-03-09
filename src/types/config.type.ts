@@ -5,12 +5,12 @@ export interface Host {
   domain: Domain[]
 }
 
-interface Prefix {
+export interface Prefix {
   id: number
   name: string
 }
 
-interface Domain {
+export interface Domain {
   id: number
   name: string
 }

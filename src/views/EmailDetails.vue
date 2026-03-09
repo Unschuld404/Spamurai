@@ -1,28 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { getTarget } from '@/api/target.api.ts'
 import { getEmailDetails } from '@/api/emailDetails.api.ts'
-import type { Target } from '@/types/target.type.ts'
 import type { Email } from '@/types/email.type.ts'
 import { useEmailStore } from '@/stores/email.ts'
-import GlowingButton from '@/components/GlowingButton.vue'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
-import TargetPlate from '@/components/TargetPlate.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const router = useRouter()
 const emailStore = useEmailStore()
 const emailID = emailStore.id
-const email = ref<Email | null>(null)
-
-const isShared = false
-
-const targetsVisible = ref(false)
-
-function toggleTargetVisibility() {
-  targetsVisible.value = !targetsVisible.value
-}
+const email = ref<Email>()
 
 function closeEmailDetails(id: number) {
   emailStore.clearID(id)
@@ -30,20 +18,13 @@ function closeEmailDetails(id: number) {
   router.push('/')
 }
 
-const possibleTargets = ref<Target[]>([])
-
-onMounted(async () => {
-  try {
-    possibleTargets.value = await getTarget()
-  } catch (error) {}
-})
-
 onMounted(async () => {
   try {
     email.value = await getEmailDetails(emailID)
     console.log(email.value)
   } catch (error) {}
 })
+
 </script>
 
 <template>
@@ -53,15 +34,8 @@ onMounted(async () => {
       <span class="material-symbols-rounded">content_copy</span>
     </div>
 
-    <div class="column gap" v-if="isShared">
-      <GlowingButton name="abonnieren" />
-      <GlowingBackButton name="stumm" />
-    </div>
-
-    <div class="column gap">
-      <TargetPlate v-for="t in possibleTargets" :caption="t.caption" v-if="targetsVisible" />
-      <GlowingButtonBox name="Ziele bearbeiten" @click="toggleTargetVisibility()" />
-    </div>
+    <GlowingButtonBox icon="notifications" class="btn-box" v-if="!email?.has_target" />
+    <GlowingBackButton icon="notifications_off" class="btn-box" v-if="email?.has_target" />
 
     <div class="commentary column" v-if="email?.comment">
       <textarea>{{ email.comment }}</textarea>
@@ -101,4 +75,10 @@ textarea {
   justify-content: space-between;
   align-items: center;
 }
+
+.btn-box {
+  height: 75px;
+  width: 75px;
+}
+
 </style>

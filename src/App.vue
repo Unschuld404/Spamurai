@@ -32,7 +32,7 @@ function logout() {
     <span class="material-symbols-rounded" @click="toggleMenu"> menu </span>
   </nav>
   <div class="backdrop" v-if="menuOpen"></div>
-  <div v-if="menuOpen" class="menu">
+  <div v-if="menuOpen" class="menu" @click="closeMenu">
     <Menu
       name="Konto"
       icon="account_circle"

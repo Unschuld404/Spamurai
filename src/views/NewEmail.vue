@@ -2,16 +2,22 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getDomains } from '@/api/domain.api.ts'
-import { getPrefix } from '@/api/prefix.api.ts'
-import type { Domain } from '@/types/domain.type.ts'
-import type { Prefix } from '@/types/prefix.types.ts'
+import { createEmail } from '@/api/createEmail.api.ts'
+import { getPreferences } from '@/api/preferences.api.ts'
+import { getConfig } from '@/api/config.api.ts'
+import type { Preferences } from '@/types/preferences.type.ts'
+import type { Host, Domain, Prefix } from '@/types/config.type.ts'
 import { useSearchStore } from '@/stores/search.ts'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
-import { createEmail } from '@/api/createEmail.api.ts'
 
 const router = useRouter()
 const searchStore = useSearchStore()
+
+const domains = ref<Domain[]>([])
+const preferences = ref<Preferences>()
+const config = ref<Host[]>([])
+const selectedHost = ref<Host | null>(null)
 
 const selectedDomain = ref<Domain | null>(null)
 const selectedPrefix = ref<Prefix | null>(null)
@@ -21,37 +27,29 @@ function backToSearch() {
   router.push('/')
 }
 
-const domains = ref<Domain[]>([])
-const prefixes = ref<Prefix[]>([])
-
 const password = ref('')
 const comment = ref('')
 
 onMounted(async () => {
   try {
+    config.value = await getConfig()
     domains.value = await getDomains()
-
-    const firstDomain = domains.value[0]
-    if (!firstDomain) return
-
-    selectedDomain.value = firstDomain
-    prefixes.value = await getPrefix(firstDomain.host_id)
-
-    const firstPrefix = prefixes.value[0]
-    if (firstPrefix) {
-      selectedPrefix.value = firstPrefix
-    }
-  } catch (error) {
-    console.log(error)
-  }
+    preferences.value = await getPreferences()
+    selectedHost.value = config.value[0] ?? null
+    selectedDomain.value =
+      selectedHost.value?.domain.find((d) => d.id === preferences.value?.default_domain_id) ?? null
+    selectedPrefix.value =
+      selectedHost.value?.prefix.find((p) => p.id === preferences.value?.default_prefix_id) ?? null
+  } catch (error) {}
 })
 
 async function saveEmail() {
+  if (!selectedPrefix.value || !selectedDomain.value) return
   try {
     const result = await createEmail({
-      prefix_id: selectedPrefix.value?.id,
+      prefix_id: selectedPrefix.value.id,
       name: searchStore.needle,
-      domain_id: selectedDomain.value?.id,
+      domain_id: selectedDomain.value.id,
       password: password.value,
       comment: comment.value,
     })
@@ -61,20 +59,13 @@ async function saveEmail() {
     console.log(error)
   }
 }
-
-function test() {
-  console.log('Prefix-ID: ' + selectedPrefix.value?.id)
-  console.log('Domain-ID: ' + selectedDomain.value?.id)
-  console.log('Password: ' + password.value)
-  console.log('Comment: ' + comment.value)
-}
 </script>
 
 <template>
   <div class="container">
     <h3>
-      {{ selectedPrefix?.name }}<span v-if="selectedPrefix && selectedPrefix.name.length > 0">.</span
-      >{{ searchStore.needle }}{{ selectedDomain?.name }}
+      {{ selectedPrefix?.name }}<span v-if="selectedPrefix?.name">.</span>{{ searchStore.needle
+      }}{{ selectedDomain?.name }}
     </h3>
     <div class="column gap" style="margin-top: 1rem">
       <div class="row">
@@ -85,15 +76,19 @@ function test() {
     </div>
     <div class="column">
       <div class="row">
-        <h3>Prefix:</h3>
-        <select v-model="selectedPrefix">
-          <option v-for="p in prefixes" :key="p.id" :value="p">{{ p.name }}</option>
+        <h3>Domain:</h3>
+        <select v-model="selectedDomain">
+          <option v-for="d in selectedHost?.domain" :key="d.id" :value="d">
+            {{ d.name }}
+          </option>
         </select>
       </div>
       <div class="row">
-        <h3>Domain:</h3>
-        <select v-model="selectedDomain">
-          <option v-for="d in domains" :key="d.id" :value="d">{{ d.name }}</option>
+        <h3>Prefix:</h3>
+        <select v-model="selectedPrefix">
+          <option v-for="p in selectedHost?.prefix" :key="p.id" :value="p">
+            {{ p.name }}
+          </option>
         </select>
       </div>
     </div>

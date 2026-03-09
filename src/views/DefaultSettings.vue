@@ -9,7 +9,6 @@ import type { Host } from '@/types/config.type.ts'
 import { getPreferences } from '@/api/preferences.api.ts'
 import { getConfig } from '@/api/config.api.ts'
 import { setPreferences } from '@/api/setPreferences.api.ts'
-import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 
 const router = useRouter()
 
@@ -60,7 +59,7 @@ async function savePreferences() {
       </div>
       <div class="row">
         <h3>Domain:</h3>
-        <select v-model="selectedDomainId">
+        <select v-model="selectedDomainId" @change="savePreferences()">
           <option
             v-for="d in selectedHost?.domain"
             :key="d.id"
@@ -73,7 +72,7 @@ async function savePreferences() {
       </div>
       <div class="row">
         <h3>Prefix:</h3>
-        <select v-model="selectedPrefixId">
+        <select v-model="selectedPrefixId" @change="savePreferences()">
           <option
             v-for="p in selectedHost?.prefix"
             :key="p.id"
@@ -85,10 +84,7 @@ async function savePreferences() {
         </select>
       </div>
     </div>
-    <div class="row">
-      <GlowingBackButton icon="arrow_left_alt" class="btn-small" @click="router.push('/')" />
-      <GlowingButtonBox icon="save" class="btn-small" @click="savePreferences()" />
-    </div>
+    <GlowingBackButton icon="arrow_left_alt" class="btn-small" @click="router.push('/')" />
   </div>
 </template>
 

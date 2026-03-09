@@ -69,9 +69,8 @@ watch(needle, (newValue) => {
 })
 
 onMounted(() => {
-  if (needle) {
-    search()
-  }
+  if (needle.value.length < 1) return
+  search()
 })
 
 function newEmail() {

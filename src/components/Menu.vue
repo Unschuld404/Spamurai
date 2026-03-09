@@ -22,6 +22,7 @@ defineProps({
   border: 1px solid var(--color-secondary);
   background-color: var(--color-background-secondary);
   margin: 0.5rem;
+  cursor: pointer;
 }
 
 .block {

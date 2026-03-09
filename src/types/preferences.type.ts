@@ -5,6 +5,6 @@ export interface Preferences {
   default_target_id: number,
   "use_password": boolean,
   password_core: string,
-  use_password_system: false,
+  use_password_system: boolean,
   id: null;
 }
