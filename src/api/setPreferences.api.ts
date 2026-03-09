@@ -4,8 +4,7 @@ import type { Preferences} from '@/types/preferences.type.ts'
 const url = 'https://api.blackserver.de/spamurai/preferences'
 
 export async function setPreferences(
-  default_domain_id: number,
-  default_prefix_id: number
+  data: object
 ) {
   const auth = useAuthStore()
 
@@ -15,10 +14,7 @@ export async function setPreferences(
       'Content-Type': 'application/json',
       ...(auth.token ? { Authorization: `Bearer ${auth.token}` } : {}),
     },
-    body: JSON.stringify({
-      default_domain_id,
-      default_prefix_id
-    }),
+    body: JSON.stringify(data),
   })
 
   if (!res.ok) throw new Error(res.statusText)

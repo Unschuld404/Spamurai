@@ -36,8 +36,10 @@ async function savePreferences() {
 
   try {
     preferences.value = await setPreferences(
-      selectedDomainId.value,
-      selectedPrefixId.value,
+      {
+        default_domain_id: selectedDomainId.value,
+        default_prefix_id: selectedPrefixId.value
+      }
     )
   } catch (error) {
     console.error(error)
@@ -60,12 +62,7 @@ async function savePreferences() {
       <div class="row">
         <h3>Domain:</h3>
         <select v-model="selectedDomainId" @change="savePreferences()">
-          <option
-            v-for="d in selectedHost?.domain"
-            :key="d.id"
-            :name="d.name"
-            :value="d.id"
-          >
+          <option v-for="d in selectedHost?.domain" :key="d.id" :name="d.name" :value="d.id">
             {{ d.name }}
           </option>
         </select>
@@ -73,12 +70,7 @@ async function savePreferences() {
       <div class="row">
         <h3>Prefix:</h3>
         <select v-model="selectedPrefixId" @change="savePreferences()">
-          <option
-            v-for="p in selectedHost?.prefix"
-            :key="p.id"
-            :name="p.name"
-            :value="p.id"
-          >
+          <option v-for="p in selectedHost?.prefix" :key="p.id" :name="p.name" :value="p.id">
             {{ p.name }}
           </option>
         </select>

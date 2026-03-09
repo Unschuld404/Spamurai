@@ -3,7 +3,7 @@ export interface Preferences {
   default_prefix_id: number,
   default_domain_id: number,
   default_target_id: number,
-  "use_password": boolean,
+  "use_passwords": boolean,
   password_core: string,
   use_password_system: boolean,
   id: null;

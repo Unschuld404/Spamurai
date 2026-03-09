@@ -75,7 +75,7 @@ async function saveEmail() {
       <input type="text" placeholder="neue E-Mail" v-model="searchStore.needle" />
     </div>
     <div class="column">
-      <div class="row">
+      <div class="row" v-if="selectedHost && selectedHost?.domain.length > 1">
         <h3>Domain:</h3>
         <select v-model="selectedDomain">
           <option v-for="d in selectedHost?.domain" :key="d.id" :value="d">
@@ -83,7 +83,7 @@ async function saveEmail() {
           </option>
         </select>
       </div>
-      <div class="row">
+      <div class="row" v-if="selectedHost && selectedHost?.prefix.length > 1">
         <h3>Prefix:</h3>
         <select v-model="selectedPrefix">
           <option v-for="p in selectedHost?.prefix" :key="p.id" :value="p">
