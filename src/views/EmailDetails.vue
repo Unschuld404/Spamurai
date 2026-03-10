@@ -6,6 +6,8 @@ import type { Email } from '@/types/email.type.ts'
 import { useEmailStore } from '@/stores/email.ts'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
+import Password from '@/components/Password.vue'
+import { copyToClipboard } from '@/api/CopyToClipboard.ts'
 
 const router = useRouter()
 const emailStore = useEmailStore()
@@ -24,22 +26,22 @@ onMounted(async () => {
     console.log(email.value)
   } catch (error) {}
 })
-
 </script>
 
 <template>
   <div class="container">
     <div class="row" style="padding-top: 2rem">
       <h3>{{ email?.email }}</h3>
-      <span class="material-symbols-rounded">content_copy</span>
+      <span class="material-symbols-rounded" @click="copyToClipboard(`${email?.email}`)">content_copy</span>
     </div>
 
     <GlowingButtonBox icon="notifications" class="btn-box" v-if="!email?.has_target" />
     <GlowingBackButton icon="notifications_off" class="btn-box" v-if="email?.has_target" />
 
     <div class="commentary column" v-if="email?.comment">
-      <textarea>{{ email.comment }}</textarea>
+      <textarea placeholder="Kommentar">{{ email.comment }}</textarea>
     </div>
+    <Password name="Test" />
     <GlowingBackButton @click="closeEmailDetails" icon="arrow_left_alt" class="btn-small" />
   </div>
 </template>
@@ -55,14 +57,26 @@ span {
 
 textarea {
   width: 100%;
-  height: 5.5rem;
+  height: 2.3rem;
+  padding: 0.5rem 1rem;
   background-color: transparent;
   font-family: inherit;
   color: inherit;
   font-size: inherit;
-  border: none;
+  border: 1px solid var(--color-primary);
+  border-radius: 5px;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  caret-color: var(--color-primary-transparent);
+  box-sizing: border-box;
+}
+
+textarea:focus {
+  outline: 2px solid var(--color-primary);
+}
+
+textarea::placeholder {
+  color: var(--color-primary-transparent);
 }
 
 .column {
@@ -80,5 +94,4 @@ textarea {
   height: 75px;
   width: 75px;
 }
-
 </style>

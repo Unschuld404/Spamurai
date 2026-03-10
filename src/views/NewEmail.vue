@@ -8,9 +8,13 @@ import type { Host, Prefix, Domain } from '@/types/config.type.ts'
 import { getConfig } from '@/api/config.api.ts'
 import { getPreferences } from '@/api/preferences.api.ts'
 import { createEmail } from '@/api/createEmail.api.ts'
+import { copyToClipboard } from '@/api/CopyToClipboard.ts'
 
 const router = useRouter()
 const searchStore = useSearchStore()
+
+const comment = ref('')
+const password = ref('')
 
 function backToSearch() {
   searchStore.goSearch()
@@ -30,6 +34,12 @@ const domain = computed<Domain | null>(() => {
   return selectedHost.value?.domain.find((d) => d.id === selectedDomainId.value) ?? null
 })
 
+const showPW = ref<boolean | null>(null)
+
+const email = computed(() => {
+  return `${prefix.value?.name ?? ''}${prefix.value?.name ? '.' : ''}${searchStore.needle}${domain.value?.name ?? ''}`
+})
+
 onMounted(async () => {
   try {
     const config = await getConfig()
@@ -46,6 +56,8 @@ onMounted(async () => {
       selectedHost.value?.domain.find((d) => d.id === preferences.default_domain_id)?.id ??
       selectedHost.value?.domain[0]?.id ??
       null
+
+    showPW.value = preferences.use_passwords
   } catch (error) {
     console.log(error)
   }
@@ -57,16 +69,19 @@ async function saveEmail() {
   if (!selectedPrefixId.value || !selectedDomainId.value || !searchStore.needle) {
     return
   }
+  const emailText = email.value
   try {
+    await copyToClipboard(emailText)
     const result = await createEmail({
       prefix_id: selectedPrefixId.value,
       domain_id: selectedDomainId.value,
       name: searchStore.needle,
+      comment: comment.value,
+      password: password.value,
     })
     console.log(result)
     console.log(result.id)
     await router.push(`/email-details/${result.id}`)
-
   } catch (error) {
     console.log(error)
   }
@@ -76,12 +91,12 @@ async function saveEmail() {
 <template>
   <div class="container">
     <h3>
-      {{ prefix?.name }}{{ prefix?.name ? '.' : '' }}{{ searchStore.needle }}{{ domain?.name }}
+      {{ email }}
     </h3>
     <div class="column gap" style="margin-top: 1rem">
       <div class="row">
         <GlowingBackButton @click="backToSearch" icon="arrow_left_alt" class="btn-small" />
-        <GlowingButtonBox icon="mail" class="btn-small" @click="saveEmail()" />
+        <GlowingButtonBox icon="mail" class="btn-small" @click="saveEmail" />
       </div>
       <input type="text" placeholder="neue E-Mail" v-model="searchStore.needle" />
     </div>
@@ -104,11 +119,28 @@ async function saveEmail() {
           </option>
         </select>
       </div>
+      <div class="column" style="margin-top: 1rem">
+        <p>Kommentar:</p>
+        <input type="text" class="info" v-model="comment" />
+        <div v-if="showPW">
+          <p>Passwort:</p>
+          <input type="text" class="info" v-model="password" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+p {
+  color: var(--color-secondary);
+  margin-bottom: 0;
+}
+
+.info {
+  width: 100%;
+}
+
 .container {
   justify-content: start;
 }
