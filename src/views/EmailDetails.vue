@@ -2,12 +2,13 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { getEmailDetails } from '@/api/emailDetails.api.ts'
+import { copyToClipboard } from '@/api/CopyToClipboard.ts'
+import { subscribe, unsubscribe } from '@/api/subscribe.api.ts'
 import type { Email } from '@/types/email.type.ts'
 import { useEmailStore } from '@/stores/email.ts'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
 import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 import Password from '@/components/Password.vue'
-import { copyToClipboard } from '@/api/CopyToClipboard.ts'
 
 const router = useRouter()
 const emailStore = useEmailStore()
@@ -26,22 +27,61 @@ onMounted(async () => {
     console.log(email.value)
   } catch (error) {}
 })
+
+async function subscribeToEmail() {
+  try {
+    await subscribe(emailStore.id ?? 0)
+    email.value = await getEmailDetails(emailID)
+  } catch (error) {}
+}
+
+async function unsubscribeFromEmail() {
+  try {
+    await unsubscribe(emailStore.id ?? 0)
+    email.value = await getEmailDetails(emailID)
+  } catch (error) {}
+}
 </script>
 
 <template>
   <div class="container">
     <div class="row" style="padding-top: 2rem">
       <h3>{{ email?.email }}</h3>
-      <span class="material-symbols-rounded" @click="copyToClipboard(`${email?.email}`)">content_copy</span>
+      <span class="material-symbols-rounded" @click="copyToClipboard(`${email?.email}`)"
+        >content_copy</span
+      >
     </div>
+    <div class="row">
+      <GlowingBackButton
+        icon="notifications_off"
+        class="btn-box"
+        v-if="!email?.has_target && email?.is_owner && email?.active"
+        @click="subscribeToEmail"
+      />
+      <GlowingBackButton
+        icon="notifications_off"
+        class="btn-box"
+        v-if="!email?.has_target && !email?.is_owner && email?.is_shared && email?.active"
+        @click="subscribeToEmail"
+      />
+      <GlowingButtonBox
+        icon="notifications"
+        class="btn-box"
+        v-if="email?.has_target && email?.active"
+        @click="unsubscribeFromEmail()"
+      />
 
-    <GlowingButtonBox icon="notifications" class="btn-box" v-if="!email?.has_target" />
-    <GlowingBackButton icon="notifications_off" class="btn-box" v-if="email?.has_target" />
+      <GlowingBackButton icon="eye_tracking" class="btn-box" />
+
+      <GlowingBackButton icon="group" class="btn-box" />
+
+      <GlowingBackButton icon="recenter" class="btn-box" />
+    </div>
 
     <div class="commentary column" v-if="email?.comment">
       <textarea placeholder="Kommentar">{{ email.comment }}</textarea>
     </div>
-    <Password name="Test" />
+    <Password :password="email?.password" />
     <GlowingBackButton @click="closeEmailDetails" icon="arrow_left_alt" class="btn-small" />
   </div>
 </template>

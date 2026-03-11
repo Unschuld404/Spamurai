@@ -9,6 +9,7 @@ import { getConfig } from '@/api/config.api.ts'
 import { getPreferences } from '@/api/preferences.api.ts'
 import { createEmail } from '@/api/createEmail.api.ts'
 import { copyToClipboard } from '@/api/CopyToClipboard.ts'
+import { subscribe } from '@/api/subscribe.api.ts'
 
 const router = useRouter()
 const searchStore = useSearchStore()
@@ -79,6 +80,7 @@ async function saveEmail() {
       comment: comment.value,
       password: password.value,
     })
+    await subscribe(result.id)
     console.log(result)
     console.log(result.id)
     await router.push(`/email-details/${result.id}`)
