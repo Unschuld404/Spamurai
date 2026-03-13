@@ -18,10 +18,12 @@ async function copyPassword(password: string) {
 <template>
   <div class="row">
     <div>Passwort:</div>
-    <div v-if="!passwordIsVisible">********************</div>
-    <div v-if="passwordIsVisible" class="pw">{{ props.password }}</div>
+    <div v-if="!passwordIsVisible" class="stars">********************</div>
+    <div v-if="passwordIsVisible" class="pw" @click="copyPassword(props.password)">
+      {{ props.password }}
+    </div>
     <div @click="togglePassword">
-      <span class="material-symbols-rounded" @click="copyPassword(props.password)"> visibility </span>
+      <span class="material-symbols-rounded"> visibility </span>
     </div>
   </div>
 </template>
@@ -33,5 +35,14 @@ async function copyPassword(password: string) {
 
 .pw {
   color: var(--color-secondary);
+  cursor: pointer;
+}
+
+.stars {
+  cursor: default;
+}
+
+span {
+  cursor: pointer;
 }
 </style>

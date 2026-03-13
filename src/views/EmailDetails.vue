@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { getEmailDetails } from '@/api/emailDetails.api.ts'
 import { copyToClipboard } from '@/api/CopyToClipboard.ts'
 import { subscribe, unsubscribe } from '@/api/subscribe.api.ts'
+import { updateEmail } from '@/api/updateEmail.api.ts'
 import type { Email } from '@/types/email.type.ts'
 import { useEmailStore } from '@/stores/email.ts'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
@@ -41,6 +42,13 @@ async function unsubscribeFromEmail() {
     email.value = await getEmailDetails(emailID)
   } catch (error) {}
 }
+
+async function updateEmailDetails(email: Email) {
+  try {
+    await updateEmail(email)
+  } catch (error) {}
+}
+
 </script>
 
 <template>
@@ -71,8 +79,6 @@ async function unsubscribeFromEmail() {
         @click="unsubscribeFromEmail()"
       />
 
-      <GlowingBackButton icon="eye_tracking" class="btn-box" />
-
       <GlowingBackButton icon="group" class="btn-box" />
 
       <GlowingBackButton icon="recenter" class="btn-box" />
@@ -81,7 +87,10 @@ async function unsubscribeFromEmail() {
     <div class="commentary column" v-if="email?.comment">
       <textarea placeholder="Kommentar">{{ email.comment }}</textarea>
     </div>
-    <Password :password="email?.password" />
+
+    <button @click="updateEmail(email.comment)">send</button>
+
+    <Password :password="email?.password" v-if="email?.password" />
     <GlowingBackButton @click="closeEmailDetails" icon="arrow_left_alt" class="btn-small" />
   </div>
 </template>
