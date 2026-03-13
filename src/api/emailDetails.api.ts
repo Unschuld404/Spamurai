@@ -15,10 +15,8 @@ export async function getEmailDetails(emailId: number | null): Promise<Email> {
   })
 
   if (!res.ok) {
-    throw new Error(
-      `Failed to get email details for email ${emailId}`
-    )
+    throw new Error(`Failed to get email details for email ${emailId}`)
   }
 
-  return  (await res.json()) as Email
+  return (await res.json()) as Email
 }

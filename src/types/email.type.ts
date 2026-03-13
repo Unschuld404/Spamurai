@@ -1,26 +1,50 @@
+export interface EmailTarget {
+  id: number
+  user_id?: number | null
+  address?: string | null
+  email?: string | null
+  caption?: string | null
+  name?: string | null
+}
+
+export interface EmailSharedUser {
+  id: number
+  name: string | null
+  email: string | null
+  caption: string
+}
+
+export interface EmailSpaceMember {
+  id: number
+  name: string | null
+  email: string | null
+  caption: string
+}
+
+export interface EmailSpace {
+  id: number
+  name: string
+  users?: EmailSpaceMember[]
+}
+
 export interface Email {
   email_id: number
   email: string
   active: boolean
-  in_space: boolean
+  owner_id?: number | null
+  in_space?: boolean
   is_shared: boolean
   has_target: boolean
   is_owner: boolean
-  password: string
+  password: string | null
   comment: string
-  targets: Target[]
-  shared: User[]
+  targets: EmailTarget[]
+  shared: EmailSharedUser[]
+  spaces: EmailSpace[]
 }
 
-interface Target {
-  user_id: number
-  address: string
-  id: number;
-}
-
-interface User {
+export interface SaveEmailPayload {
   id: number
-  name: string
-  email: string
-  caption: string
+  password: string | null
+  comment: string
 }

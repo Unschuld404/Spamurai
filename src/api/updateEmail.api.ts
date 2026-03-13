@@ -1,10 +1,10 @@
 import { useAuthStore } from '@/stores/auth.ts'
-import type { Email } from '@/types/email.type.ts'
+import type { SaveEmailPayload } from '@/types/email.type.ts'
 
 const url = 'https://api.blackserver.de/spamurai/email'
 
-export async function updateEmail(data: Email): Promise<void> {
- const auth = useAuthStore()
+export async function updateEmail(data: SaveEmailPayload): Promise<void> {
+  const auth = useAuthStore()
 
   const res = await fetch(url, {
     method: 'POST',

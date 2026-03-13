@@ -1,0 +1,3817 @@
+  openapi: 3.1.0
+  info:
+      title: 'API blackserver'
+      version: '0.1'
+      description: "API Dokumentation für \n [https://api.blackserver.de](https://api.blackserver.de)"
+      contact:
+          email: dj@blackserver.de
+  tags:
+      -
+          name: ShadowHeart
+      -
+          name: chummer
+          description: 'API für chummer.blackserver.de'
+      -
+          name: deprecated
+      -
+          name: documentation
+      -
+          name: rest
+          description: Modelle
+      -
+          name: service
+          description: 'Allgemeine Service-Funktionen'
+      -
+          name: spamurai
+  security:
+      -
+          BasicAuth: []
+      -
+          JWT: []
+      -
+          session: []
+      -
+          apiKey: []
+          accessKey: []
+  paths:
+      /:
+          get: []
+      /auth/app:
+          get:
+              summary: 'Authentifizierung einer App mit X-ACCESS-Key + X-API-Key Gewährt Zugriff auf die Daten.'
+              description: 'Gibt ein Access-Token als JWT-Token zurück.'
+              responses:
+                  '200':
+                      description: JWT-Token
+                      content:
+                          application/json:
+                              schema:
+                                  type: string
+      /auth/user:
+          get:
+              summary: 'Authentifizierung eines Users mit Username/Passwort'
+              description: "Gewährt Zugriff auf die Daten.\nGibt ein Access-Token als JWT-Token zurück."
+              responses:
+                  '200':
+                      description: JWT-Token
+                      content:
+                          application/json:
+                              schema:
+                                  type: string
+          post:
+              summary: 'Authentifizierung eines Users mit Username/Passwort'
+              responses:
+                  '200':
+                      description: JWT-Token
+                      content:
+                          application/json:
+                              schema:
+                                  type: string
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: object
+                              properties:
+                                  username:
+                                      type: string
+                                      examples:
+                                          - foo
+                                  password:
+                                      type: string
+                                      examples:
+                                          - bar
+                      multipart/form-data:
+                          schema:
+                              type: object
+                              properties:
+                                  username:
+                                      type: string
+                                      examples:
+                                          - foo
+                                  password:
+                                      type: string
+                                      examples:
+                                          - bar
+      '/chummer/character/{uid}':
+          get:
+              tags:
+                  - chummer
+              parameters:
+                  -
+                      in: path
+                      name: uid
+                      required: true
+                      schema:
+                          type: string
+          post:
+              tags:
+                  - chummer
+              parameters:
+                  -
+                      in: path
+                      name: uid
+                      required: true
+                      schema:
+                          type: string
+      /chummer/data:
+          get:
+              tags:
+                  - chummer
+      '/chummer/data/{uid}':
+          get:
+              tags:
+                  - chummer
+              parameters:
+                  -
+                      in: path
+                      name: uid
+                      required: true
+                      schema:
+                          type: string
+          post:
+              tags:
+                  - chummer
+              parameters:
+                  -
+                      in: path
+                      name: uid
+                      required: true
+                      schema:
+                          type: string
+          put:
+              tags:
+                  - chummer
+              parameters:
+                  -
+                      in: path
+                      name: uid
+                      required: true
+                      schema:
+                          type: string
+      /chummer/roll:
+          get:
+              tags:
+                  - chummer
+          post:
+              tags:
+                  - chummer
+      '/chummer/roll/{count}':
+          get:
+              tags:
+                  - chummer
+              parameters:
+                  -
+                      in: path
+                      name: count
+                      required: true
+                      schema:
+                          type: integer
+      /docs:
+          get: []
+      /doku:
+          get:
+              deprecated: true
+              summary: 'Old handwritten documentation'
+              tags:
+                  - documentation
+                  - deprecated
+      /doku/next:
+          get:
+              summary: 'api.curasoft Dokumentation'
+              description: 'OpenAPI YAML Format'
+              tags:
+                  - documentation
+              parameters:
+                  -
+                      in: query
+                      name: tag
+                      required: false
+                      description: "Filtere Routen per Tag, default alle anzeigen, mehrere Tags mit ',' trennen (z.B. tag=api,rest)"
+                      style: form
+                      schema:
+                          default: []
+                          oneOf:
+                              -
+                                  type: array
+                              -
+                                  type: string
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/yaml:
+                              schema:
+                                  externalDocs:
+                                      description: 'OpenAPI Specification'
+                                      url: 'https://swagger.io/specification/'
+      /doku/tags:
+          get:
+              summary: 'Alle von der Doku verwendeten Tags'
+              tags:
+                  - documentation
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          name:
+                                              type: string
+                                              examples:
+                                                  - ping
+                                          description:
+                                              type: string
+                                              examples:
+                                                  - 'Alle PING Routen'
+      /ping:
+          get: []
+      /ping/secure:
+          get: []
+      '/rest/{model}':
+          get:
+              summary: 'Liste aller Datensätze von {model}'
+              tags:
+                  - rest
+              parameters:
+                  -
+                      in: query
+                      name: page
+                      required: false
+                      description: 'Die Ergebnisseite mit dem aus Limit ermittelten Datensätzen'
+                      style: form
+                      schema:
+                          type: integer
+                          minimum: 0
+                          default: 0
+                  -
+                      in: query
+                      name: limit
+                      required: false
+                      description: 'limitiert die Anzahl der zurückgegebenen Datensätze'
+                      style: form
+                      schema:
+                          type: integer
+                          minimum: 1
+                          default: 1000
+                  -
+                      in: query
+                      name: orderby
+                      required: false
+                      description: 'Definiere die Sortierung nach Spalten. Mehrere Properties durch ,(Komma) getrennt möglich: prop1 ASC, prop2 DESC'
+                      style: form
+                      schema:
+                          type: string
+                          default: 'id ASC'
+                  -
+                      in: query
+                      name: filter
+                      required: false
+                      description: 'Filter auf Columns mit Werten. Aufbau Column,Wert. id,4567 -> Column id mit Inhalt 4567; id,4567;mandant_id,1 -> UND-Verknüpfung; id,4567|mandant_id,1 -> ODER-Verknüpfung'
+                      style: form
+                      schema:
+                          type: string
+                  -
+                      in: query
+                      name: needle
+                      required: false
+                      description: 'Suchbegriff der in allen Columns gesucht wird. Sollte der Filter gesetzt sein wird aus Needle und Filter eine UND-Verknüpfung.'
+                      style: form
+                      schema:
+                          type: string
+                  -
+                      in: query
+                      name: haystack
+                      required: false
+                      description: 'Properties des Models in denen der Wert von needle gesucht werden soll. Wird nur ausgewertet wenn needle einen Wert beinhaltet.'
+                      style: form
+                      schema:
+                          type: string
+                  -
+                      in: path
+                      name: model
+                      required: true
+                      schema:
+                          enum:
+                              - Adversary
+                              - Card
+                              - Character
+                              - Equipment
+                              - Feature
+                              - Domain
+                              - Email
+                              - EmailShared
+                              - EmailSpace
+                              - EmailTarget
+                              - Host
+                              - Preferences
+                              - Prefix
+                              - Space
+                              - Target
+                              - UserSpace
+                              - ChummerCharacter
+                              - AccessKey
+                              - AccessKeyRecht
+                              - AccessRecord
+                              - ApiKey
+                              - CronLog
+                              - LogRecord
+                              - User
+                              - UserRecht
+                              - Modul
+                              - Recht
+                              - Settings
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      oneOf:
+                                          -
+                                              title: Adversary
+                                              $ref: '#/components/schemas/Adversary'
+                                          -
+                                              title: Card
+                                              $ref: '#/components/schemas/Card'
+                                          -
+                                              title: Character
+                                              $ref: '#/components/schemas/Character'
+                                          -
+                                              title: Equipment
+                                              $ref: '#/components/schemas/Equipment'
+                                          -
+                                              title: Feature
+                                              $ref: '#/components/schemas/Feature'
+                                          -
+                                              title: Domain
+                                              $ref: '#/components/schemas/Domain'
+                                          -
+                                              title: Email
+                                              $ref: '#/components/schemas/Email'
+                                          -
+                                              title: EmailShared
+                                              $ref: '#/components/schemas/EmailShared'
+                                          -
+                                              title: EmailSpace
+                                              $ref: '#/components/schemas/EmailSpace'
+                                          -
+                                              title: EmailTarget
+                                              $ref: '#/components/schemas/EmailTarget'
+                                          -
+                                              title: Host
+                                              $ref: '#/components/schemas/Host'
+                                          -
+                                              title: Preferences
+                                              $ref: '#/components/schemas/Preferences'
+                                          -
+                                              title: Prefix
+                                              $ref: '#/components/schemas/Prefix'
+                                          -
+                                              title: Space
+                                              $ref: '#/components/schemas/Space'
+                                          -
+                                              title: Target
+                                              $ref: '#/components/schemas/Target'
+                                          -
+                                              title: UserSpace
+                                              $ref: '#/components/schemas/UserSpace'
+                                          -
+                                              title: ChummerCharacter
+                                              $ref: '#/components/schemas/ChummerCharacter'
+                                          -
+                                              title: AccessKey
+                                              $ref: '#/components/schemas/AccessKey'
+                                          -
+                                              title: AccessKeyRecht
+                                              $ref: '#/components/schemas/AccessKeyRecht'
+                                          -
+                                              title: AccessRecord
+                                              $ref: '#/components/schemas/AccessRecord'
+                                          -
+                                              title: ApiKey
+                                              $ref: '#/components/schemas/ApiKey'
+                                          -
+                                              title: CronLog
+                                              $ref: '#/components/schemas/CronLog'
+                                          -
+                                              title: LogRecord
+                                              $ref: '#/components/schemas/LogRecord'
+                                          -
+                                              title: User
+                                              $ref: '#/components/schemas/User'
+                                          -
+                                              title: UserRecht
+                                              $ref: '#/components/schemas/UserRecht'
+                                          -
+                                              title: Modul
+                                              $ref: '#/components/schemas/Modul'
+                                          -
+                                              title: Recht
+                                              $ref: '#/components/schemas/Recht'
+                                          -
+                                              title: Settings
+                                              $ref: '#/components/schemas/Settings'
+          post:
+              summary: 'Erstellt einen neuen Datensatz von {model}'
+              tags:
+                  - rest
+              parameters:
+                  -
+                      in: path
+                      name: model
+                      required: true
+                      schema:
+                          enum:
+                              - Adversary
+                              - Card
+                              - Character
+                              - Equipment
+                              - Feature
+                              - Domain
+                              - Email
+                              - EmailShared
+                              - EmailSpace
+                              - EmailTarget
+                              - Host
+                              - Preferences
+                              - Prefix
+                              - Space
+                              - Target
+                              - UserSpace
+                              - ChummerCharacter
+                              - AccessKey
+                              - AccessKeyRecht
+                              - AccessRecord
+                              - ApiKey
+                              - CronLog
+                              - LogRecord
+                              - User
+                              - UserRecht
+                              - Modul
+                              - Recht
+                              - Settings
+              responses:
+                  '200':
+                      description: created
+                      content:
+                          application/json:
+                              schema:
+                                  type: object
+                                  properties:
+                                      id:
+                                          type: integer
+                                          minimum: 1
+                  '400':
+                      description: 'ungültiges Datenformat'
+                      content:
+                          application/json:
+                              schema:
+                                  type: string
+                                  examples:
+                                      - 'ungültiges Datenformat'
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              oneOf:
+                                  -
+                                      title: Adversary
+                                      $ref: '#/components/schemas/Adversary'
+                                  -
+                                      title: Card
+                                      $ref: '#/components/schemas/Card'
+                                  -
+                                      title: Character
+                                      $ref: '#/components/schemas/Character'
+                                  -
+                                      title: Equipment
+                                      $ref: '#/components/schemas/Equipment'
+                                  -
+                                      title: Feature
+                                      $ref: '#/components/schemas/Feature'
+                                  -
+                                      title: Domain
+                                      $ref: '#/components/schemas/Domain'
+                                  -
+                                      title: Email
+                                      $ref: '#/components/schemas/Email'
+                                  -
+                                      title: EmailShared
+                                      $ref: '#/components/schemas/EmailShared'
+                                  -
+                                      title: EmailSpace
+                                      $ref: '#/components/schemas/EmailSpace'
+                                  -
+                                      title: EmailTarget
+                                      $ref: '#/components/schemas/EmailTarget'
+                                  -
+                                      title: Host
+                                      $ref: '#/components/schemas/Host'
+                                  -
+                                      title: Preferences
+                                      $ref: '#/components/schemas/Preferences'
+                                  -
+                                      title: Prefix
+                                      $ref: '#/components/schemas/Prefix'
+                                  -
+                                      title: Space
+                                      $ref: '#/components/schemas/Space'
+                                  -
+                                      title: Target
+                                      $ref: '#/components/schemas/Target'
+                                  -
+                                      title: UserSpace
+                                      $ref: '#/components/schemas/UserSpace'
+                                  -
+                                      title: ChummerCharacter
+                                      $ref: '#/components/schemas/ChummerCharacter'
+                                  -
+                                      title: AccessKey
+                                      $ref: '#/components/schemas/AccessKey'
+                                  -
+                                      title: AccessKeyRecht
+                                      $ref: '#/components/schemas/AccessKeyRecht'
+                                  -
+                                      title: AccessRecord
+                                      $ref: '#/components/schemas/AccessRecord'
+                                  -
+                                      title: ApiKey
+                                      $ref: '#/components/schemas/ApiKey'
+                                  -
+                                      title: CronLog
+                                      $ref: '#/components/schemas/CronLog'
+                                  -
+                                      title: LogRecord
+                                      $ref: '#/components/schemas/LogRecord'
+                                  -
+                                      title: User
+                                      $ref: '#/components/schemas/User'
+                                  -
+                                      title: UserRecht
+                                      $ref: '#/components/schemas/UserRecht'
+                                  -
+                                      title: Modul
+                                      $ref: '#/components/schemas/Modul'
+                                  -
+                                      title: Recht
+                                      $ref: '#/components/schemas/Recht'
+                                  -
+                                      title: Settings
+                                      $ref: '#/components/schemas/Settings'
+                      application/yaml:
+                          schema:
+                              oneOf:
+                                  -
+                                      title: Adversary
+                                      $ref: '#/components/schemas/Adversary'
+                                  -
+                                      title: Card
+                                      $ref: '#/components/schemas/Card'
+                                  -
+                                      title: Character
+                                      $ref: '#/components/schemas/Character'
+                                  -
+                                      title: Equipment
+                                      $ref: '#/components/schemas/Equipment'
+                                  -
+                                      title: Feature
+                                      $ref: '#/components/schemas/Feature'
+                                  -
+                                      title: Domain
+                                      $ref: '#/components/schemas/Domain'
+                                  -
+                                      title: Email
+                                      $ref: '#/components/schemas/Email'
+                                  -
+                                      title: EmailShared
+                                      $ref: '#/components/schemas/EmailShared'
+                                  -
+                                      title: EmailSpace
+                                      $ref: '#/components/schemas/EmailSpace'
+                                  -
+                                      title: EmailTarget
+                                      $ref: '#/components/schemas/EmailTarget'
+                                  -
+                                      title: Host
+                                      $ref: '#/components/schemas/Host'
+                                  -
+                                      title: Preferences
+                                      $ref: '#/components/schemas/Preferences'
+                                  -
+                                      title: Prefix
+                                      $ref: '#/components/schemas/Prefix'
+                                  -
+                                      title: Space
+                                      $ref: '#/components/schemas/Space'
+                                  -
+                                      title: Target
+                                      $ref: '#/components/schemas/Target'
+                                  -
+                                      title: UserSpace
+                                      $ref: '#/components/schemas/UserSpace'
+                                  -
+                                      title: ChummerCharacter
+                                      $ref: '#/components/schemas/ChummerCharacter'
+                                  -
+                                      title: AccessKey
+                                      $ref: '#/components/schemas/AccessKey'
+                                  -
+                                      title: AccessKeyRecht
+                                      $ref: '#/components/schemas/AccessKeyRecht'
+                                  -
+                                      title: AccessRecord
+                                      $ref: '#/components/schemas/AccessRecord'
+                                  -
+                                      title: ApiKey
+                                      $ref: '#/components/schemas/ApiKey'
+                                  -
+                                      title: CronLog
+                                      $ref: '#/components/schemas/CronLog'
+                                  -
+                                      title: LogRecord
+                                      $ref: '#/components/schemas/LogRecord'
+                                  -
+                                      title: User
+                                      $ref: '#/components/schemas/User'
+                                  -
+                                      title: UserRecht
+                                      $ref: '#/components/schemas/UserRecht'
+                                  -
+                                      title: Modul
+                                      $ref: '#/components/schemas/Modul'
+                                  -
+                                      title: Recht
+                                      $ref: '#/components/schemas/Recht'
+                                  -
+                                      title: Settings
+                                      $ref: '#/components/schemas/Settings'
+      '/rest/{model}/{id}':
+          delete:
+              summary: 'Löscht den Datensatz von {model} für {id}'
+              tags:
+                  - rest
+              parameters:
+                  -
+                      in: path
+                      name: model
+                      required: true
+                      schema:
+                          enum:
+                              - Adversary
+                              - Card
+                              - Character
+                              - Equipment
+                              - Feature
+                              - Domain
+                              - Email
+                              - EmailShared
+                              - EmailSpace
+                              - EmailTarget
+                              - Host
+                              - Preferences
+                              - Prefix
+                              - Space
+                              - Target
+                              - UserSpace
+                              - ChummerCharacter
+                              - AccessKey
+                              - AccessKeyRecht
+                              - AccessRecord
+                              - ApiKey
+                              - CronLog
+                              - LogRecord
+                              - User
+                              - UserRecht
+                              - Modul
+                              - Recht
+                              - Settings
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: string
+              responses:
+                  '404':
+                      description: 'data not found'
+          get:
+              summary: 'Liste aller Datensätze von {model}'
+              tags:
+                  - rest
+              parameters:
+                  -
+                      in: path
+                      name: model
+                      required: true
+                      schema:
+                          enum:
+                              - Adversary
+                              - Card
+                              - Character
+                              - Equipment
+                              - Feature
+                              - Domain
+                              - Email
+                              - EmailShared
+                              - EmailSpace
+                              - EmailTarget
+                              - Host
+                              - Preferences
+                              - Prefix
+                              - Space
+                              - Target
+                              - UserSpace
+                              - ChummerCharacter
+                              - AccessKey
+                              - AccessKeyRecht
+                              - AccessRecord
+                              - ApiKey
+                              - CronLog
+                              - LogRecord
+                              - User
+                              - UserRecht
+                              - Modul
+                              - Recht
+                              - Settings
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  oneOf:
+                                      -
+                                          title: Adversary
+                                          $ref: '#/components/schemas/Adversary'
+                                      -
+                                          title: Card
+                                          $ref: '#/components/schemas/Card'
+                                      -
+                                          title: Character
+                                          $ref: '#/components/schemas/Character'
+                                      -
+                                          title: Equipment
+                                          $ref: '#/components/schemas/Equipment'
+                                      -
+                                          title: Feature
+                                          $ref: '#/components/schemas/Feature'
+                                      -
+                                          title: Domain
+                                          $ref: '#/components/schemas/Domain'
+                                      -
+                                          title: Email
+                                          $ref: '#/components/schemas/Email'
+                                      -
+                                          title: EmailShared
+                                          $ref: '#/components/schemas/EmailShared'
+                                      -
+                                          title: EmailSpace
+                                          $ref: '#/components/schemas/EmailSpace'
+                                      -
+                                          title: EmailTarget
+                                          $ref: '#/components/schemas/EmailTarget'
+                                      -
+                                          title: Host
+                                          $ref: '#/components/schemas/Host'
+                                      -
+                                          title: Preferences
+                                          $ref: '#/components/schemas/Preferences'
+                                      -
+                                          title: Prefix
+                                          $ref: '#/components/schemas/Prefix'
+                                      -
+                                          title: Space
+                                          $ref: '#/components/schemas/Space'
+                                      -
+                                          title: Target
+                                          $ref: '#/components/schemas/Target'
+                                      -
+                                          title: UserSpace
+                                          $ref: '#/components/schemas/UserSpace'
+                                      -
+                                          title: ChummerCharacter
+                                          $ref: '#/components/schemas/ChummerCharacter'
+                                      -
+                                          title: AccessKey
+                                          $ref: '#/components/schemas/AccessKey'
+                                      -
+                                          title: AccessKeyRecht
+                                          $ref: '#/components/schemas/AccessKeyRecht'
+                                      -
+                                          title: AccessRecord
+                                          $ref: '#/components/schemas/AccessRecord'
+                                      -
+                                          title: ApiKey
+                                          $ref: '#/components/schemas/ApiKey'
+                                      -
+                                          title: CronLog
+                                          $ref: '#/components/schemas/CronLog'
+                                      -
+                                          title: LogRecord
+                                          $ref: '#/components/schemas/LogRecord'
+                                      -
+                                          title: User
+                                          $ref: '#/components/schemas/User'
+                                      -
+                                          title: UserRecht
+                                          $ref: '#/components/schemas/UserRecht'
+                                      -
+                                          title: Modul
+                                          $ref: '#/components/schemas/Modul'
+                                      -
+                                          title: Recht
+                                          $ref: '#/components/schemas/Recht'
+                                      -
+                                          title: Settings
+                                          $ref: '#/components/schemas/Settings'
+          put:
+              summary: 'Führt ein Update für den Datensatz von {model} für {id} aus'
+              tags:
+                  - rest
+              parameters:
+                  -
+                      in: path
+                      name: model
+                      required: true
+                      schema:
+                          enum:
+                              - Adversary
+                              - Card
+                              - Character
+                              - Equipment
+                              - Feature
+                              - Domain
+                              - Email
+                              - EmailShared
+                              - EmailSpace
+                              - EmailTarget
+                              - Host
+                              - Preferences
+                              - Prefix
+                              - Space
+                              - Target
+                              - UserSpace
+                              - ChummerCharacter
+                              - AccessKey
+                              - AccessKeyRecht
+                              - AccessRecord
+                              - ApiKey
+                              - CronLog
+                              - LogRecord
+                              - User
+                              - UserRecht
+                              - Modul
+                              - Recht
+                              - Settings
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              oneOf:
+                                  -
+                                      title: Adversary
+                                      $ref: '#/components/schemas/Adversary'
+                                  -
+                                      title: Card
+                                      $ref: '#/components/schemas/Card'
+                                  -
+                                      title: Character
+                                      $ref: '#/components/schemas/Character'
+                                  -
+                                      title: Equipment
+                                      $ref: '#/components/schemas/Equipment'
+                                  -
+                                      title: Feature
+                                      $ref: '#/components/schemas/Feature'
+                                  -
+                                      title: Domain
+                                      $ref: '#/components/schemas/Domain'
+                                  -
+                                      title: Email
+                                      $ref: '#/components/schemas/Email'
+                                  -
+                                      title: EmailShared
+                                      $ref: '#/components/schemas/EmailShared'
+                                  -
+                                      title: EmailSpace
+                                      $ref: '#/components/schemas/EmailSpace'
+                                  -
+                                      title: EmailTarget
+                                      $ref: '#/components/schemas/EmailTarget'
+                                  -
+                                      title: Host
+                                      $ref: '#/components/schemas/Host'
+                                  -
+                                      title: Preferences
+                                      $ref: '#/components/schemas/Preferences'
+                                  -
+                                      title: Prefix
+                                      $ref: '#/components/schemas/Prefix'
+                                  -
+                                      title: Space
+                                      $ref: '#/components/schemas/Space'
+                                  -
+                                      title: Target
+                                      $ref: '#/components/schemas/Target'
+                                  -
+                                      title: UserSpace
+                                      $ref: '#/components/schemas/UserSpace'
+                                  -
+                                      title: ChummerCharacter
+                                      $ref: '#/components/schemas/ChummerCharacter'
+                                  -
+                                      title: AccessKey
+                                      $ref: '#/components/schemas/AccessKey'
+                                  -
+                                      title: AccessKeyRecht
+                                      $ref: '#/components/schemas/AccessKeyRecht'
+                                  -
+                                      title: AccessRecord
+                                      $ref: '#/components/schemas/AccessRecord'
+                                  -
+                                      title: ApiKey
+                                      $ref: '#/components/schemas/ApiKey'
+                                  -
+                                      title: CronLog
+                                      $ref: '#/components/schemas/CronLog'
+                                  -
+                                      title: LogRecord
+                                      $ref: '#/components/schemas/LogRecord'
+                                  -
+                                      title: User
+                                      $ref: '#/components/schemas/User'
+                                  -
+                                      title: UserRecht
+                                      $ref: '#/components/schemas/UserRecht'
+                                  -
+                                      title: Modul
+                                      $ref: '#/components/schemas/Modul'
+                                  -
+                                      title: Recht
+                                      $ref: '#/components/schemas/Recht'
+                                  -
+                                      title: Settings
+                                      $ref: '#/components/schemas/Settings'
+      /service/analyze/auth:
+          get:
+              summary: 'Liefert Informationen über die aktuell verwendete Autorisierung'
+              tags:
+                  - service
+      /service/analyze/token:
+          get:
+              summary: 'Liefert Informationen über ein JWT-Token'
+              tags:
+                  - service
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: array
+                              items:
+                                  type: object
+                                  properties:
+                                      uuid:
+                                          type: integer
+                                      exp:
+                                          type: object
+                                          properties:
+                                              date:
+                                                  type: string
+                                                  examples:
+                                                      - '2025-04-25 02:00:00.000000'
+                                              timezone_type:
+                                                  type: integer
+                                              timezone:
+                                                  type: string
+                                                  examples:
+                                                      - '+00:00'
+                  description: 'inhalt des token'
+      /service/data:
+          post:
+              summary: 'Legt für das übergebene YAML alle entsprechenden Daten an.'
+              description: 'Dokumentation siehe https://curasoft.youtrack.cloud/articles/CURAGO-A-6/service-data-Funktionen'
+              tags:
+                  - service
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: array
+                      application/yaml:
+                          schema:
+                              type: array
+                  description: 'Liste von Modellen welche zurückgesetzt werden und Liste von Modellen mit Daten und Subdaten welche angelegt werden'
+      /service/orm/select:
+          post:
+              summary: 'Gib Daten strukturiert zurück'
+              description: 'siehe https://curasoft.youtrack.cloud/articles/ORGA-A-19/ORM-Controller'
+              tags:
+                  - service
+              requestBody:
+                  required: true
+                  content:
+                      application/yaml:
+                          schema:
+                              type: array
+                      application/json:
+                          schema:
+                              type: array
+                  description: 'strukturierte select Anweisung'
+      /shadowheart/cards:
+          get:
+              summary: 'Gibt die Liste der Karten zurück'
+              tags:
+                  - ShadowHeart
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      title: Card
+                                      properties:
+                                          category:
+                                              default: null
+                                              type: string
+                                              examples:
+                                                  - Kontakte
+                                          class:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - mage
+                                                  - hacker
+                                                  - adept
+                                                  - sam
+                                                  - soldier
+                                                  - spy
+                                                  - ghost
+                                              examples:
+                                                  - mage
+                                          created_at:
+                                              default: null
+                                              type: string
+                                              format: date-time
+                                              readOnly: true
+                                          distance:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - melee
+                                                  - very_close
+                                                  - close
+                                                  - far
+                                                  - very_far
+                                                  - out_of_range
+                                              examples:
+                                                  - far
+                                          domain:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - street
+                                                  - magic
+                                                  - spirits
+                                                  - movement
+                                                  - drones
+                                                  - hacking
+                                                  - infiltration
+                                                  - weapons
+                                                  - cyberware
+                                              examples:
+                                                  - street
+                                          exhaustion:
+                                              default: null
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                          id:
+                                              default: 1
+                                              type: integer
+                                              minimum: 0
+                                              examples:
+                                                  - '1'
+                                          image:
+                                              default: null
+                                              type: string
+                                              examples:
+                                                  - elf.jpg
+                                          name:
+                                              default: ''
+                                              type: string
+                                              examples:
+                                                  - 'Da ist Tee drin!'
+                                          recall:
+                                              default: null
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                          subclass:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - shaman
+                                                  - hermet
+                                                  - kinetic
+                                                  - witcher
+                                                  - merc
+                                                  - cyborg
+                                                  - influencer
+                                                  - jack
+                                                  - thief
+                                                  - assassin
+                                              examples:
+                                                  - shaman
+                                          subclass_tier:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - foundation
+                                                  - specialization
+                                                  - mastery
+                                              examples:
+                                                  - fortgeschritten
+                                          text:
+                                              default: ''
+                                              type: string
+                                              examples:
+                                                  - 'Du greifst dir etwas in deiner Nähe und benutzt es als Waffe. Der Angriff verursacht 1d10 Schaden + Proficiency. Das Objekt ist danach beschädigt, verloren oder unbrauchbar.'
+                                          tier:
+                                              default: null
+                                              type: string
+                                              examples:
+                                                  - '2'
+                                          type:
+                                              default: ''
+                                              type: string
+                                              enum:
+                                                  - domain
+                                                  - heritage
+                                                  - phenotype
+                                                  - class
+                                                  - subclass
+                                                  - equipment
+                                                  - contact
+                                              examples:
+                                                  - domain
+                                          uid:
+                                              default: ''
+                                              type: string
+                                              examples:
+                                                  - street.tea
+                                          updated_at:
+                                              default: null
+                                              type: string
+                                              format: date-time
+                                              readOnly: true
+                          application/yaml:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      title: Card
+                                      properties:
+                                          category:
+                                              default: null
+                                              type: string
+                                              examples:
+                                                  - Kontakte
+                                          class:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - mage
+                                                  - hacker
+                                                  - adept
+                                                  - sam
+                                                  - soldier
+                                                  - spy
+                                                  - ghost
+                                              examples:
+                                                  - mage
+                                          created_at:
+                                              default: null
+                                              type: string
+                                              format: date-time
+                                              readOnly: true
+                                          distance:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - melee
+                                                  - very_close
+                                                  - close
+                                                  - far
+                                                  - very_far
+                                                  - out_of_range
+                                              examples:
+                                                  - far
+                                          domain:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - street
+                                                  - magic
+                                                  - spirits
+                                                  - movement
+                                                  - drones
+                                                  - hacking
+                                                  - infiltration
+                                                  - weapons
+                                                  - cyberware
+                                              examples:
+                                                  - street
+                                          exhaustion:
+                                              default: null
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                          id:
+                                              default: 1
+                                              type: integer
+                                              minimum: 0
+                                              examples:
+                                                  - '1'
+                                          image:
+                                              default: null
+                                              type: string
+                                              examples:
+                                                  - elf.jpg
+                                          name:
+                                              default: ''
+                                              type: string
+                                              examples:
+                                                  - 'Da ist Tee drin!'
+                                          recall:
+                                              default: null
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                          subclass:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - shaman
+                                                  - hermet
+                                                  - kinetic
+                                                  - witcher
+                                                  - merc
+                                                  - cyborg
+                                                  - influencer
+                                                  - jack
+                                                  - thief
+                                                  - assassin
+                                              examples:
+                                                  - shaman
+                                          subclass_tier:
+                                              default: null
+                                              type: string
+                                              enum:
+                                                  - foundation
+                                                  - specialization
+                                                  - mastery
+                                              examples:
+                                                  - fortgeschritten
+                                          text:
+                                              default: ''
+                                              type: string
+                                              examples:
+                                                  - 'Du greifst dir etwas in deiner Nähe und benutzt es als Waffe. Der Angriff verursacht 1d10 Schaden + Proficiency. Das Objekt ist danach beschädigt, verloren oder unbrauchbar.'
+                                          tier:
+                                              default: null
+                                              type: string
+                                              examples:
+                                                  - '2'
+                                          type:
+                                              default: ''
+                                              type: string
+                                              enum:
+                                                  - domain
+                                                  - heritage
+                                                  - phenotype
+                                                  - class
+                                                  - subclass
+                                                  - equipment
+                                                  - contact
+                                              examples:
+                                                  - domain
+                                          uid:
+                                              default: ''
+                                              type: string
+                                              examples:
+                                                  - street.tea
+                                          updated_at:
+                                              default: null
+                                              type: string
+                                              format: date-time
+                                              readOnly: true
+          post:
+              summary: 'Entfernt alle Karten und speichert die übergebenen Karten'
+              tags:
+                  - ShadowHeart
+              requestBody:
+                  required: true
+                  content:
+                      application/yaml:
+                          schema:
+                              type: object
+                              title: Card
+                              properties:
+                                  category:
+                                      default: null
+                                      type: string
+                                      examples:
+                                          - Kontakte
+                                  class:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - mage
+                                          - hacker
+                                          - adept
+                                          - sam
+                                          - soldier
+                                          - spy
+                                          - ghost
+                                      examples:
+                                          - mage
+                                  distance:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - melee
+                                          - very_close
+                                          - close
+                                          - far
+                                          - very_far
+                                          - out_of_range
+                                      examples:
+                                          - far
+                                  domain:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - street
+                                          - magic
+                                          - spirits
+                                          - movement
+                                          - drones
+                                          - hacking
+                                          - infiltration
+                                          - weapons
+                                          - cyberware
+                                      examples:
+                                          - street
+                                  exhaustion:
+                                      default: null
+                                      type: integer
+                                      examples:
+                                          - '1'
+                                  id:
+                                      default: 1
+                                      type: integer
+                                      minimum: 0
+                                      examples:
+                                          - '1'
+                                  image:
+                                      default: null
+                                      type: string
+                                      examples:
+                                          - elf.jpg
+                                  name:
+                                      default: ''
+                                      type: string
+                                      examples:
+                                          - 'Da ist Tee drin!'
+                                  recall:
+                                      default: null
+                                      type: integer
+                                      examples:
+                                          - '1'
+                                  subclass:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - shaman
+                                          - hermet
+                                          - kinetic
+                                          - witcher
+                                          - merc
+                                          - cyborg
+                                          - influencer
+                                          - jack
+                                          - thief
+                                          - assassin
+                                      examples:
+                                          - shaman
+                                  subclass_tier:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - foundation
+                                          - specialization
+                                          - mastery
+                                      examples:
+                                          - fortgeschritten
+                                  text:
+                                      default: ''
+                                      type: string
+                                      examples:
+                                          - 'Du greifst dir etwas in deiner Nähe und benutzt es als Waffe. Der Angriff verursacht 1d10 Schaden + Proficiency. Das Objekt ist danach beschädigt, verloren oder unbrauchbar.'
+                                  tier:
+                                      default: null
+                                      type: string
+                                      examples:
+                                          - '2'
+                                  type:
+                                      default: ''
+                                      type: string
+                                      enum:
+                                          - domain
+                                          - heritage
+                                          - phenotype
+                                          - class
+                                          - subclass
+                                          - equipment
+                                          - contact
+                                      examples:
+                                          - domain
+                                  uid:
+                                      default: ''
+                                      type: string
+                                      examples:
+                                          - street.tea
+                      application/json:
+                          schema:
+                              type: object
+                              title: Card
+                              properties:
+                                  category:
+                                      default: null
+                                      type: string
+                                      examples:
+                                          - Kontakte
+                                  class:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - mage
+                                          - hacker
+                                          - adept
+                                          - sam
+                                          - soldier
+                                          - spy
+                                          - ghost
+                                      examples:
+                                          - mage
+                                  distance:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - melee
+                                          - very_close
+                                          - close
+                                          - far
+                                          - very_far
+                                          - out_of_range
+                                      examples:
+                                          - far
+                                  domain:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - street
+                                          - magic
+                                          - spirits
+                                          - movement
+                                          - drones
+                                          - hacking
+                                          - infiltration
+                                          - weapons
+                                          - cyberware
+                                      examples:
+                                          - street
+                                  exhaustion:
+                                      default: null
+                                      type: integer
+                                      examples:
+                                          - '1'
+                                  id:
+                                      default: 1
+                                      type: integer
+                                      minimum: 0
+                                      examples:
+                                          - '1'
+                                  image:
+                                      default: null
+                                      type: string
+                                      examples:
+                                          - elf.jpg
+                                  name:
+                                      default: ''
+                                      type: string
+                                      examples:
+                                          - 'Da ist Tee drin!'
+                                  recall:
+                                      default: null
+                                      type: integer
+                                      examples:
+                                          - '1'
+                                  subclass:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - shaman
+                                          - hermet
+                                          - kinetic
+                                          - witcher
+                                          - merc
+                                          - cyborg
+                                          - influencer
+                                          - jack
+                                          - thief
+                                          - assassin
+                                      examples:
+                                          - shaman
+                                  subclass_tier:
+                                      default: null
+                                      type: string
+                                      enum:
+                                          - foundation
+                                          - specialization
+                                          - mastery
+                                      examples:
+                                          - fortgeschritten
+                                  text:
+                                      default: ''
+                                      type: string
+                                      examples:
+                                          - 'Du greifst dir etwas in deiner Nähe und benutzt es als Waffe. Der Angriff verursacht 1d10 Schaden + Proficiency. Das Objekt ist danach beschädigt, verloren oder unbrauchbar.'
+                                  tier:
+                                      default: null
+                                      type: string
+                                      examples:
+                                          - '2'
+                                  type:
+                                      default: ''
+                                      type: string
+                                      enum:
+                                          - domain
+                                          - heritage
+                                          - phenotype
+                                          - class
+                                          - subclass
+                                          - equipment
+                                          - contact
+                                      examples:
+                                          - domain
+                                  uid:
+                                      default: ''
+                                      type: string
+                                      examples:
+                                          - street.tea
+      /shadowheart/cards/edit:
+          get:
+              tags:
+                  - ShadowHeart
+      /spamurai/config:
+          get:
+              summary: 'Hosts des Users'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          id:
+                                              type: integer
+                                              examples:
+                                                  - '2'
+                                          caption:
+                                              type: string
+                                              examples:
+                                                  - Blackserver
+                                          prefix:
+                                              type: array
+                                              items:
+                                                  type: object
+                                                  properties:
+                                                      id:
+                                                          type: integer
+                                                          examples:
+                                                              - '22'
+                                                      name:
+                                                          type: string
+                                                          examples:
+                                                              - foo
+                                          domain:
+                                              type: array
+                                              items:
+                                                  type: object
+                                                  properties:
+                                                      id:
+                                                          type: integer
+                                                          examples:
+                                                              - '12'
+                                                      name:
+                                                          type: string
+                                                          examples:
+                                                              - '@bar.de'
+      /spamurai/domain:
+          get:
+              summary: 'Gibt die verfügbaren Domains zurück'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/x-yaml:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: string
+                                      description: Domain
+                                  examples:
+                                      - "- '@unschuld.org'\n- '@blackserver.de'\n- '@datajockey.net'"
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: string
+                                      description: Domain
+                                  examples:
+                                      - "[\n    \"@unschuld.org\",\n    \"@blackserver.de\",\n    \"@datajockey.net\"\n]"
+      /spamurai/email:
+          post:
+              summary: 'speichert eine E-Mail'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: created
+                      content:
+                          application/json:
+                              schema:
+                                  type: object
+                                  properties:
+                                      id:
+                                          type: integer
+                                          minimum: 1
+                  '400':
+                      description: 'ungültiges Datenformat'
+                      content:
+                          application/json:
+                              schema:
+                                  type: string
+                                  examples:
+                                      - 'ungültiges Datenformat'
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: object
+                              properties:
+                                  id:
+                                      type: integer
+                                      examples:
+                                          - '1'
+                                  prefix_id:
+                                      type: integer
+                                      examples:
+                                          - '2'
+                                  name:
+                                      type: string
+                                      examples:
+                                          - google
+                                  domain_id:
+                                      type: integer
+                                      examples:
+                                          - '3'
+                                  password:
+                                      type: string
+                                      nullable: true
+                                  comment:
+                                      type: string
+                                      examples:
+                                          - "Das ist der Kommentar.\nEnde."
+      '/spamurai/email/{id}':
+          get:
+              summary: 'Gibt Informationen für eine E-Mail zurück'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          email_id:
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                          email:
+                                              type: string
+                                              examples:
+                                                  - foo@bar.de
+                                          is_shared:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob die E-Mail für mich freigegeben ist'
+                                          has_target:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich ein Ziel für die E-Mail-Adresse habe'
+                                          is_owner:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich Besitzers der E-Mail bin'
+                                          active:
+                                              type: boolean
+                                              examples:
+                                                  - '1'
+                                  examples:
+                                      - "  {\n    \"email_id\": 1,\n    \"email\": \"google@unschuld.org\",\n    \"is_shared\": true,\n    \"has_target\": false,\n    \"is_owner\": false,\n    \"active\": true\n  }     "
+                          application/yaml:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          email_id:
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                          email:
+                                              type: string
+                                              examples:
+                                                  - foo@bar.de
+                                          is_shared:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob die E-Mail für mich freigegeben ist'
+                                          has_target:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich ein Ziel für die E-Mail-Adresse habe'
+                                          is_owner:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich Besitzers der E-Mail bin'
+                                          active:
+                                              type: boolean
+                                              examples:
+                                                  - '1'
+                                  examples:
+                                      - "  {\n    \"email_id\": 1,\n    \"email\": \"google@unschuld.org\",\n    \"is_shared\": true,\n    \"has_target\": false,\n    \"is_owner\": false,\n    \"active\": true\n  }     "
+      '/spamurai/email/{id}/activate':
+          get:
+              summary: 'Aktiviert den Empfang für eine E-Mail mit dem Standard-Target'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+              responses:
+                  '200':
+                      description: ''
+      '/spamurai/email/{id}/activate/{target}':
+          get:
+              summary: 'Aktiviert den Empfang für eine E-Mail'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+                  -
+                      in: path
+                      name: target
+                      required: true
+                      schema:
+                          type: string
+              responses:
+                  '200':
+                      description: ''
+      '/spamurai/email/{id}/deactivate':
+          get:
+              summary: 'Deaktiviert den Empfang für eine E-Mail mit dem Standard-Target'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+              responses:
+                  '200':
+                      description: ''
+      '/spamurai/email/{id}/deactivate/{target}':
+          get:
+              summary: 'Deaktiviert den Empfang für eine E-Mail'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+                  -
+                      in: path
+                      name: target
+                      required: true
+                      schema:
+                          type: string
+              responses:
+                  '200':
+                      description: ''
+      '/spamurai/email/{id}/space/{space_id}':
+          delete:
+              summary: 'Entfernt eine E-Mail aus einem Space'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+                  -
+                      in: path
+                      name: space_id
+                      required: true
+                      schema:
+                          type: integer
+          put:
+              summary: 'Fügt eine E-Mail einem Space hinzu'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+                  -
+                      in: path
+                      name: space_id
+                      required: true
+                      schema:
+                          type: integer
+      '/spamurai/email/{id}/user/{user_id}':
+          delete:
+              summary: 'Entfernt eine User-Freigabe für eine E-Mail'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+                  -
+                      in: path
+                      name: user_id
+                      required: true
+                      schema:
+                          type: integer
+          put:
+              summary: 'Fügt eine User-Freigabe einer E-Mail hinzu'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+                  -
+                      in: path
+                      name: user_id
+                      required: true
+                      schema:
+                          type: integer
+      '/spamurai/host/{id}/prefix':
+          get:
+              summary: 'Prefixe für den Host und den angemeldeten User'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          id:
+                                              type: integer
+                                              examples:
+                                                  - '2'
+                                          name:
+                                              type: string
+                                              examples:
+                                                  - foo
+      /spamurai/preferences:
+          get:
+              summary: 'Einstellungen für den angemeldeten User'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: object
+                                  title: Preferences
+                                  properties:
+                                      created_at:
+                                          default: null
+                                          type: string
+                                          format: date-time
+                                          readOnly: true
+                                      default_domain_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '3'
+                                      default_prefix_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '2'
+                                      default_target_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '4'
+                                      id:
+                                          default: 1
+                                          type: integer
+                                          minimum: 0
+                                          examples:
+                                              - '1'
+                                      password_core:
+                                          default: null
+                                          type: string
+                                          examples:
+                                              - '-dt29jSA+'
+                                      updated_at:
+                                          default: null
+                                          type: string
+                                          format: date-time
+                                          readOnly: true
+                                      use_password_system:
+                                          default: false
+                                          type: boolean
+                                      use_passwords:
+                                          default: false
+                                          type: boolean
+                                      user_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '13'
+                          application/yaml:
+                              schema:
+                                  type: object
+                                  title: Preferences
+                                  properties:
+                                      created_at:
+                                          default: null
+                                          type: string
+                                          format: date-time
+                                          readOnly: true
+                                      default_domain_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '3'
+                                      default_prefix_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '2'
+                                      default_target_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '4'
+                                      id:
+                                          default: 1
+                                          type: integer
+                                          minimum: 0
+                                          examples:
+                                              - '1'
+                                      password_core:
+                                          default: null
+                                          type: string
+                                          examples:
+                                              - '-dt29jSA+'
+                                      updated_at:
+                                          default: null
+                                          type: string
+                                          format: date-time
+                                          readOnly: true
+                                      use_password_system:
+                                          default: false
+                                          type: boolean
+                                      use_passwords:
+                                          default: false
+                                          type: boolean
+                                      user_id:
+                                          default: 0
+                                          type: integer
+                                          examples:
+                                              - '13'
+          put:
+              summary: 'Einstellungen für den angemeldeten User ändern'
+              tags:
+                  - spamurai
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: object
+                              title: Preferences
+                              properties:
+                                  default_domain_id:
+                                      default: 0
+                                      type: integer
+                                      examples:
+                                          - '3'
+                                  default_prefix_id:
+                                      default: 0
+                                      type: integer
+                                      examples:
+                                          - '2'
+                                  default_target_id:
+                                      default: 0
+                                      type: integer
+                                      examples:
+                                          - '4'
+                                  id:
+                                      default: 1
+                                      type: integer
+                                      minimum: 0
+                                      examples:
+                                          - '1'
+                                  password_core:
+                                      default: null
+                                      type: string
+                                      examples:
+                                          - '-dt29jSA+'
+                                  use_password_system:
+                                      default: false
+                                      type: boolean
+                                  use_passwords:
+                                      default: false
+                                      type: boolean
+                                  user_id:
+                                      default: 0
+                                      type: integer
+                                      examples:
+                                          - '13'
+      /spamurai/prefix:
+          post:
+              summary: 'Prefix hinzufügen'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: created
+                      content:
+                          application/json:
+                              schema:
+                                  type: object
+                                  properties:
+                                      id:
+                                          type: integer
+                                          minimum: 1
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: array
+                              items:
+                                  type: object
+                                  properties:
+                                      name:
+                                          type: string
+                                          examples:
+                                              - foo
+                                      host_id:
+                                          type: integer
+                                          examples:
+                                              - '3'
+      '/spamurai/prefix/{id}':
+          delete:
+              summary: 'Löscht einen Prefix'
+              description: 'alle E-Mails für die Prefixe werden gelöscht!'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+      /spamurai/search:
+          get:
+              summary: 'Suche ohne Needle liefert immer leeres Ergebnis'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+      '/spamurai/search/{needle}':
+          get:
+              summary: 'Suche über E-Mails'
+              description: "Der Parameter sucht nur vor dem @ der E-Mail. Dieser wird an Punkten getrennt.\nIn den sich ergebenen Teilstücken ist der Treffer umso wichtiger, je weiter vorne Needle gefunden wird.\n\nWenn in Needle ein @ enthalten ist, wird in gesamter E-Mail gesucht."
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: needle
+                      required: true
+                      description: Suchbegriff
+                      schema:
+                          type: string
+                          examples:
+                              - goo
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          email:
+                                              type: string
+                                              examples:
+                                                  - foo@bar.de
+                                          in_space:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: "Flag, ob die E-Mail in einem meiner Space's sichtbar ist"
+                                          is_shared:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob die E-Mail für mich freigegeben ist'
+                                          has_target:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich ein Ziel für die E-Mail-Adresse habe'
+                                          is_owner:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich Besitzers der E-Mail bin'
+                                          active:
+                                              type: boolean
+                                              examples:
+                                                  - '1'
+                                          id:
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                      description: email-alias
+                                  examples:
+                                      - "[\n  {\n    \"email\": \"google@unschuld.org\",\n    \"in_space\": false,\n    \"is_shared\": true,\n    \"has_target\": false,\n    \"is_owner\": false,\n    \"active\": true\n  },\n  {\n    \"email\": \"klaus.google@unschuld.org\",\n    \"in_space\": false,\n    \"is_shared\": true,\n    \"has_target\": false,\n    \"is_owner\": true,\n    \"active\": true\n  },\n  {\n    \"email\": \"tina.google@unschuld.org\",\n    \"in_space\": true,\n    \"is_shared\": true,\n    \"has_target\": true,\n    \"is_owner\": false,\n    \"active\": true\n  }\n]"
+                          application/x-yaml:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          email:
+                                              type: string
+                                              examples:
+                                                  - foo@bar.de
+                                          in_space:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: "Flag, ob die E-Mail in einem meiner Space's sichtbar ist"
+                                          is_shared:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob die E-Mail für mich freigegeben ist'
+                                          has_target:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich ein Ziel für die E-Mail-Adresse habe'
+                                          is_owner:
+                                              type: boolean
+                                              examples:
+                                                  - ''
+                                              description: 'Flag, ob ich Besitzers der E-Mail bin'
+                                          active:
+                                              type: boolean
+                                              examples:
+                                                  - '1'
+                                          id:
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                      description: email-alias
+                                  examples:
+                                      - "[\n  {\n    \"email\": \"google@unschuld.org\",\n    \"in_space\": false,\n    \"is_shared\": true,\n    \"has_target\": false,\n    \"is_owner\": false,\n    \"active\": true\n  },\n  {\n    \"email\": \"klaus.google@unschuld.org\",\n    \"in_space\": false,\n    \"is_shared\": true,\n    \"has_target\": false,\n    \"is_owner\": true,\n    \"active\": true\n  },\n  {\n    \"email\": \"tina.google@unschuld.org\",\n    \"in_space\": true,\n    \"is_shared\": true,\n    \"has_target\": true,\n    \"is_owner\": false,\n    \"active\": true\n  }\n]"
+      /spamurai/space:
+          get:
+              summary: 'Spaces des Users'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      title: Space
+                                      properties:
+                                          created_at:
+                                              default: null
+                                              type: string
+                                              format: date-time
+                                              readOnly: true
+                                          id:
+                                              default: 1
+                                              type: integer
+                                              minimum: 0
+                                              examples:
+                                                  - '1'
+                                          name:
+                                              default: ''
+                                              type: string
+                                              examples:
+                                                  - gnasl
+                                          updated_at:
+                                              default: null
+                                              type: string
+                                              format: date-time
+                                              readOnly: true
+      /spamurai/target:
+          get:
+              summary: 'Liste der möglichen Zieladressen'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          target:
+                                              type: string
+                                              examples:
+                                                  - foo@bar.de
+                                          id:
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                  examples:
+                                      - "[\n  {\n    \"address\": \"foo@bar.de\",\n    \"id\": \"4\"\n  },\n  {\n    \"address\": \"gnasl@foobar.de\",\n    \"id\": \"2\"\n  }\n]        "
+                          application/yaml:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          target:
+                                              type: string
+                                              examples:
+                                                  - foo@bar.de
+                                          id:
+                                              type: integer
+                                              examples:
+                                                  - '1'
+                                  examples:
+                                      - "[\n  {\n    \"address\": \"foo@bar.de\",\n    \"id\": \"4\"\n  },\n  {\n    \"address\": \"gnasl@foobar.de\",\n    \"id\": \"2\"\n  }\n]        "
+          post:
+              summary: 'Ziel hinzufügen'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: created
+                      content:
+                          application/json:
+                              schema:
+                                  type: object
+                                  properties:
+                                      id:
+                                          type: integer
+                                          minimum: 1
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: array
+                              items:
+                                  type: object
+                                  properties:
+                                      address:
+                                          type: string
+                                          examples:
+                                              - foo@bar.de
+      '/spamurai/target/{id}':
+          delete:
+              summary: 'Löscht ein Ziel'
+              tags:
+                  - spamurai
+              parameters:
+                  -
+                      in: path
+                      name: id
+                      required: true
+                      schema:
+                          type: integer
+      /spamurai/tasks:
+          get:
+              summary: 'Liefert die aktuelle Liste der Aufträge'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          caption:
+                                              type: string
+                                          finished:
+                                              type: string
+                                              format: date-time
+                                  examples:
+                                      - "[\n  {\n    \"caption\": \"E-Mail foo@bar.de angelegt\",\n    \"finished\": \"2026-02-24T11:59:44.000Z\"\n  },\n  {\n    \"caption\": \"Ziel für foo@bar.de entfernt\",\n    \"finished\": \"2026-02-24T11:59:44.000Z\"\n  }\n]        "
+                          application/yaml:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      properties:
+                                          caption:
+                                              type: string
+                                          finished:
+                                              type: string
+                                              format: date-time
+                                  examples:
+                                      - "[\n  {\n    \"caption\": \"E-Mail foo@bar.de angelegt\",\n    \"finished\": \"2026-02-24T11:59:44.000Z\"\n  },\n  {\n    \"caption\": \"Ziel für foo@bar.de entfernt\",\n    \"finished\": \"2026-02-24T11:59:44.000Z\"\n  }\n]        "
+      /spamurai/user:
+          get:
+              summary: User
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: object
+                                  title: User
+                                  properties:
+                                      caption:
+                                          default: ''
+                                          type: string
+                                      email:
+                                          default: null
+                                          type: string
+                                      id:
+                                          default: 0
+                                          type: integer
+                                      name:
+                                          default: null
+                                          type: string
+                          application/yaml:
+                              schema:
+                                  type: object
+                                  title: User
+                                  properties:
+                                      caption:
+                                          default: ''
+                                          type: string
+                                      email:
+                                          default: null
+                                          type: string
+                                      id:
+                                          default: 0
+                                          type: integer
+                                      name:
+                                          default: null
+                                          type: string
+      /spamurai/user/list:
+          get:
+              summary: 'Liste der möglichen User aus meinem Space'
+              tags:
+                  - spamurai
+              responses:
+                  '200':
+                      description: ''
+                      content:
+                          application/json:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      title: User
+                                      properties:
+                                          caption:
+                                              default: ''
+                                              type: string
+                                          email:
+                                              default: null
+                                              type: string
+                                          id:
+                                              default: 0
+                                              type: integer
+                                          name:
+                                              default: null
+                                              type: string
+                          application/yaml:
+                              schema:
+                                  type: array
+                                  items:
+                                      type: object
+                                      title: User
+                                      properties:
+                                          caption:
+                                              default: ''
+                                              type: string
+                                          email:
+                                              default: null
+                                              type: string
+                                          id:
+                                              default: 0
+                                              type: integer
+                                          name:
+                                              default: null
+                                              type: string
+      /spamurai/user/password:
+          post:
+              tags:
+                  - spamurai
+              requestBody:
+                  required: true
+                  content:
+                      application/json:
+                          schema:
+                              type: object
+                              properties:
+                                  old_password:
+                                      type: string
+                                      examples:
+                                          - geheim
+                                  new_password:
+                                      type: string
+                                      examples:
+                                          - secret
+      /verify:
+          get: []
+  components:
+      securitySchemes:
+          BasicAuth:
+              type: http
+              description: "HTTP Basic Authentifizierung.<br>\nZugangsdaten werden als base64-kodierte username:password im Authorization-Header gesendet.<br>\n<strong>Format</strong>: Authorization: Basic base64(username:password)<br>"
+              scheme: basic
+          JWT:
+              type: http
+              description: 'https://jwt.io'
+              scheme: bearer
+              bearerFormat: JWT
+          session:
+              type: apiKey
+              description: 'PHP Session-Cookie'
+              in: cookie
+              name: PHPSESSID
+          apiKey:
+              type: apiKey
+              in: header
+              name: X-API-Key
+          accessKey:
+              type: apiKey
+              in: header
+              name: X-ACCESS-Key
+      schemas:
+          Adversary:
+              type: object
+              title: Adversary
+              properties:
+                  attack_mod:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '1'
+                  attack_name:
+                      default: ''
+                      type: string
+                      examples:
+                          - Energieblitz
+                  attack_range:
+                      default: melee
+                      type: string
+                      enum:
+                          - melee
+                          - very_close
+                          - close
+                          - far
+                          - very_far
+                          - out_of_range
+                      examples:
+                          - far
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  damage_die_count:
+                      default: 1
+                      type: integer
+                      examples:
+                          - '1'
+                  damage_die_type:
+                      default: d6
+                      type: string
+                      enum:
+                          - d6
+                          - d8
+                          - d10
+                          - d12
+                          - d20
+                      examples:
+                          - d8
+                  damage_modifier:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '1'
+                  damage_type:
+                      default: physical
+                      type: string
+                      enum:
+                          - physical
+                          - magic
+                      examples:
+                          - magic
+                  description:
+                      default: ''
+                      type: string
+                      examples:
+                          - 'A cunning criminal in a cloak bearing one of the gang’s iconic knives.     '
+                  difficulty:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '10'
+                  experience:
+                      default: ''
+                      type: string
+                      examples:
+                          - 'Religious Leader +3'
+                  feature:
+                      default: ''
+                      type: string
+                      format: markup
+                      examples:
+                          - "**_Haymaker - Action:_**  Make an attack against a target within Very Close range. On a success, deal X direct physical damage.        \n**_Relentless (2) - Passive:_**  This adversary can be spotlighted up to X times per GM turn. Spend Fear as usual to spotlight them.     "
+                  hp:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '5'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: ''
+                      type: string
+                      examples:
+                          - Konzernmagier
+                  stress:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '3'
+                  tactics:
+                      default: ''
+                      type: string
+                      examples:
+                          - 'Escape, profi t, steal, throw smoke      '
+                  threshold_major:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '10'
+                  threshold_severe:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '20'
+                  tier:
+                      default: 1
+                      type: integer
+                      examples:
+                          - '1'
+                  typ:
+                      default: Standard
+                      type: string
+                      enum:
+                          - Bruiser
+                          - Horde
+                          - Leader
+                          - Ranged
+                          - Skulk
+                          - Social
+                          - Solo
+                          - Standard
+                          - Support
+                      examples:
+                          - Bruiser
+                          - Bruiser
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Card:
+              type: object
+              title: Card
+              properties:
+                  category:
+                      default: null
+                      type: string
+                      examples:
+                          - Kontakte
+                  class:
+                      default: null
+                      type: string
+                      enum:
+                          - mage
+                          - hacker
+                          - adept
+                          - sam
+                          - soldier
+                          - spy
+                          - ghost
+                      examples:
+                          - mage
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  distance:
+                      default: null
+                      type: string
+                      enum:
+                          - melee
+                          - very_close
+                          - close
+                          - far
+                          - very_far
+                          - out_of_range
+                      examples:
+                          - far
+                  domain:
+                      default: null
+                      type: string
+                      enum:
+                          - street
+                          - magic
+                          - spirits
+                          - movement
+                          - drones
+                          - hacking
+                          - infiltration
+                          - weapons
+                          - cyberware
+                      examples:
+                          - street
+                  exhaustion:
+                      default: null
+                      type: integer
+                      examples:
+                          - '1'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  image:
+                      default: null
+                      type: string
+                      examples:
+                          - elf.jpg
+                  name:
+                      default: ''
+                      type: string
+                      examples:
+                          - 'Da ist Tee drin!'
+                  recall:
+                      default: null
+                      type: integer
+                      examples:
+                          - '1'
+                  subclass:
+                      default: null
+                      type: string
+                      enum:
+                          - shaman
+                          - hermet
+                          - kinetic
+                          - witcher
+                          - merc
+                          - cyborg
+                          - influencer
+                          - jack
+                          - thief
+                          - assassin
+                      examples:
+                          - shaman
+                  subclass_tier:
+                      default: null
+                      type: string
+                      enum:
+                          - foundation
+                          - specialization
+                          - mastery
+                      examples:
+                          - fortgeschritten
+                  text:
+                      default: ''
+                      type: string
+                      examples:
+                          - 'Du greifst dir etwas in deiner Nähe und benutzt es als Waffe. Der Angriff verursacht 1d10 Schaden + Proficiency. Das Objekt ist danach beschädigt, verloren oder unbrauchbar.'
+                  tier:
+                      default: null
+                      type: string
+                      examples:
+                          - '2'
+                  type:
+                      default: ''
+                      type: string
+                      enum:
+                          - domain
+                          - heritage
+                          - phenotype
+                          - class
+                          - subclass
+                          - equipment
+                          - contact
+                      examples:
+                          - domain
+                  uid:
+                      default: ''
+                      type: string
+                      examples:
+                          - street.tea
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Character:
+              type: object
+              title: Character
+              properties:
+                  agility:
+                      default: 0
+                      type: integer
+                  armor:
+                      default: 0
+                      type: integer
+                  class:
+                      default: ''
+                      type: string
+                  created:
+                      default: false
+                      type: boolean
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  credits:
+                      default: 0
+                      type: integer
+                  domain_card_count:
+                      default: 0
+                      type: integer
+                  evasion:
+                      default: 0
+                      type: integer
+                  experience_first:
+                      default: 0
+                      type: integer
+                  experience_first_name:
+                      default: 0
+                      type: integer
+                  experience_fourth:
+                      default: 0
+                      type: integer
+                  experience_fourth_name:
+                      default: 0
+                      type: integer
+                  experience_second:
+                      default: 0
+                      type: integer
+                  experience_second_name:
+                      default: 0
+                      type: integer
+                  experience_third:
+                      default: 0
+                      type: integer
+                  experience_third_name:
+                      default: 0
+                      type: integer
+                  finesse:
+                      default: 0
+                      type: integer
+                  hp:
+                      default: 0
+                      type: integer
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  instinct:
+                      default: 0
+                      type: integer
+                  karma:
+                      default: 0
+                      type: integer
+                  karma_max:
+                      default: 0
+                      type: integer
+                  knowledge:
+                      default: 0
+                      type: integer
+                  mastery:
+                      default: false
+                      type: boolean
+                  name:
+                      default: ''
+                      type: string
+                  origin:
+                      default: ''
+                      type: string
+                  phenotype:
+                      default: unknown
+                      type: string
+                  presence:
+                      default: 0
+                      type: integer
+                  proficiency:
+                      default: 1
+                      type: integer
+                  specialization:
+                      default: false
+                      type: boolean
+                  strength:
+                      default: 0
+                      type: integer
+                  stress:
+                      default: 0
+                      type: integer
+                  threshold_major:
+                      default: 0
+                      type: integer
+                  threshold_severe:
+                      default: 0
+                      type: integer
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  user_id:
+                      default: false
+                      type: boolean
+          Equipment:
+              type: object
+              title: Equipment
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  credits:
+                      default: 0
+                      type: integer
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: ''
+                      type: string
+                  tier:
+                      default: 1
+                      type: integer
+                  typ:
+                      default: misc
+                      type: string
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Feature:
+              type: object
+              title: Feature
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  description:
+                      default: ''
+                      type: string
+                      format: markup
+                      examples:
+                          - '**_Haymaker - Action:_**  Make an attack against a target within Very Close range. On a success, deal X direct physical damage.        '
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: ''
+                      type: string
+                      examples:
+                          - 'Relentless (X)'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Domain:
+              type: object
+              title: Domain
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  host_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '1'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: ''
+                      type: string
+                      examples:
+                          - blackserver.de
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Email:
+              type: object
+              title: Email
+              properties:
+                  active:
+                      default: true
+                      type: boolean
+                  comment:
+                      default: ''
+                      type: string
+                      examples:
+                          - 'Lorem ipsum dolor sit amet, consectetur adipiscing elit'
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  domain_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '5'
+                  email:
+                      default: ''
+                      type: string
+                      examples:
+                          - foo@bar.de
+                  has_target:
+                      default: false
+                      type: boolean
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  in_space:
+                      default: false
+                      type: boolean
+                  is_owner:
+                      default: false
+                      type: boolean
+                  is_shared:
+                      default: false
+                      type: boolean
+                  name:
+                      default: ''
+                      type: string
+                      examples:
+                          - foo
+                  password:
+                      default: null
+                      type: string
+                      examples:
+                          - geheim
+                  prefix_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '5'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          EmailShared:
+              type: object
+              title: EmailShared
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  email_id:
+                      type: integer
+                      examples:
+                          - '3'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  user_id:
+                      type: integer
+                      examples:
+                          - '4'
+          EmailSpace:
+              type: object
+              title: EmailSpace
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  email_id:
+                      type: integer
+                      examples:
+                          - '31'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  space_id:
+                      type: integer
+                      examples:
+                          - '2'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          EmailTarget:
+              type: object
+              title: EmailTarget
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  email_id:
+                      type: integer
+                      examples:
+                          - '3'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  target_id:
+                      type: integer
+                      examples:
+                          - '4'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Host:
+              type: object
+              title: Host
+              properties:
+                  caption:
+                      default: ''
+                      type: string
+                      examples:
+                          - Unschuld
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  kas_password:
+                      default: ''
+                      type: string
+                      examples:
+                          - geheim
+                  kas_username:
+                      default: ''
+                      type: string
+                      examples:
+                          - w0189f65
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  user_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '1'
+          Preferences:
+              type: object
+              title: Preferences
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  default_domain_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '3'
+                  default_prefix_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '2'
+                  default_target_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '4'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  password_core:
+                      default: null
+                      type: string
+                      examples:
+                          - '-dt29jSA+'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  use_password_system:
+                      default: false
+                      type: boolean
+                  use_passwords:
+                      default: false
+                      type: boolean
+                  user_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '13'
+          Prefix:
+              type: object
+              title: Prefix
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  host_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '1'
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: ''
+                      type: string
+                      examples:
+                          - foo
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  user_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '13'
+          Space:
+              type: object
+              title: Space
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: ''
+                      type: string
+                      examples:
+                          - gnasl
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Target:
+              type: object
+              title: Target
+              properties:
+                  address:
+                      default: ''
+                      type: string
+                      examples:
+                          - email@domain.com
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  user_id:
+                      default: 0
+                      type: integer
+                      examples:
+                          - '13'
+          UserSpace:
+              type: object
+              title: UserSpace
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  space_id:
+                      type: integer
+                      examples:
+                          - '2'
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  user_id:
+                      type: integer
+                      examples:
+                          - '41'
+          ChummerCharacter:
+              type: object
+              title: ChummerCharacter
+              properties:
+                  data:
+                      default: ''
+                      type: string
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  sheet:
+                      default: null
+                      type: string
+                  uid:
+                      default: ''
+                      type: string
+          AccessKey:
+              type: object
+              title: AccessKey
+              properties:
+                  accesskey:
+                      type: string
+                      contentEncoding: base64
+                      contentMediaType: application/octet-stream
+                  comment:
+                      type: string
+                      examples:
+                          - 'Optio rem quia voluptas quasi.'
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      type: string
+                      examples:
+                          - Hector
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          AccessKeyRecht:
+              type: object
+              title: AccessKeyRecht
+              properties:
+                  accesskey_id:
+                      type: integer
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  default:
+                      type: integer
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  recht_id:
+                      type: integer
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          AccessRecord:
+              type: object
+              title: AccessRecord
+              properties:
+                  agent:
+                      default: ''
+                      type: string
+                  executed_at:
+                      default: null
+                      type: string
+                      format: date-time
+                  finished_at:
+                      default: null
+                      type: string
+                      format: date-time
+                  info:
+                      default: ''
+                      type: string
+                  ip:
+                      default: ''
+                      type: string
+                  route:
+                      default: ''
+                      type: string
+                  session:
+                      default: ''
+                      type: string
+                  started_at:
+                      default: null
+                      type: string
+                      format: date-time
+                  status_code:
+                      default: 0
+                      type: integer
+          ApiKey:
+              type: object
+              title: ApiKey
+              properties:
+                  apikey:
+                      type: string
+                  comment:
+                      type: string
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      type: string
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          CronLog:
+              type: object
+              title: CronLog
+              properties:
+                  finished_at:
+                      default: null
+                      type: string
+                      format: date-time
+                  info:
+                      default: ''
+                      type: string
+                  name:
+                      type: string
+                  result:
+                      default: null
+                      type: boolean
+                  scheduled_at:
+                      type: string
+                      format: date-time
+                  started_at:
+                      default: null
+                      type: string
+                      format: date-time
+                  status:
+                      default: pending
+                      title: CronStatus
+                      enum:
+                          - ''
+                          - pending
+                          - running
+                          - finished
+          LogRecord:
+              type: object
+              title: LogRecord
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  location:
+                      default: ''
+                      type: string
+                      readOnly: true
+                  message:
+                      default: ''
+                      type: string
+                      readOnly: true
+                  params:
+                      default: ''
+                      type: string
+                      readOnly: true
+                  route:
+                      default: ''
+                      type: string
+                      readOnly: true
+                  status:
+                      default: 0
+                      type: integer
+                  typ:
+                      default: 0
+                      type: integer
+                      readOnly: true
+                  user_id:
+                      default: 0
+                      type: integer
+                      readOnly: true
+          User:
+              type: object
+              title: User
+              properties:
+                  admin:
+                      default: false
+                      type: boolean
+                      readOnly: true
+                  banUntil:
+                      default: null
+                      type: string
+                      format: date-time
+                  caption:
+                      default: ''
+                      type: string
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  datakey:
+                      default: ''
+                      type: string
+                  email:
+                      default: null
+                      type: string
+                  failedLoginCount:
+                      default: 0
+                      type: integer
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: null
+                      type: string
+                  password:
+                      default: ''
+                      type: string
+                      writeOnly: true
+                  status:
+                      default: 1
+                      type: integer
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          UserRecht:
+              type: object
+              title: UserRecht
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  default:
+                      type: integer
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  recht_id:
+                      type: integer
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  user_id:
+                      type: integer
+          Modul:
+              type: object
+              title: Modul
+              properties:
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  name:
+                      default: ''
+                      type: string
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Recht:
+              type: object
+              title: Recht
+              properties:
+                  caption:
+                      default: ''
+                      type: string
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  default:
+                      default: false
+                      type: boolean
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  idModule:
+                      default: 0
+                      type: integer
+                  name:
+                      default: ''
+                      type: string
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+          Settings:
+              type: object
+              title: Settings
+              properties:
+                  comment:
+                      default: ''
+                      type: string
+                  created_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  id:
+                      default: 1
+                      type: integer
+                      minimum: 0
+                      examples:
+                          - '1'
+                  key:
+                      default: ''
+                      type: string
+                  updated_at:
+                      default: null
+                      type: string
+                      format: date-time
+                      readOnly: true
+                  value:
+                      default: ''
+                      type: string
