@@ -1,17 +1,22 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { copyToClipboard } from '@/api/CopyToClipboard.ts'
 import { getEmailDetails } from '@/api/emailDetails.api.ts'
+import { getPreferences } from '@/api/preferences.api.ts'
 import { addEmailShare, removeEmailShare } from '@/api/share.api.ts'
 import { addEmailToSpace, getSpaces, removeEmailFromSpace } from '@/api/space.api.ts'
 import { subscribe, unsubscribe } from '@/api/subscribe.api.ts'
-import { createTarget, deleteTarget, getTargets } from '@/api/target.api.ts'
+import { createTarget, getTargets } from '@/api/target.api.ts'
 import { updateEmail } from '@/api/updateEmail.api.ts'
 import { getUser, getUserList } from '@/api/user.api.ts'
+import { AppApiError, formatErrorForDisplay } from '@/api/httpError.ts'
 import GlowingBackButton from '@/components/GlowingBackButton.vue'
+import GlowingButtonBox from '@/components/GlowingButtonBox.vue'
 import type { Email, EmailTarget } from '@/types/email.type.ts'
+import type { EmailSharedUser, EmailSpace } from '@/types/email.type.ts'
+import type { Preferences } from '@/types/preferences.type.ts'
 import type { Space } from '@/types/space.type.ts'
 import type { Target } from '@/types/target.type.ts'
 import type { User } from '@/types/user.type.ts'
@@ -22,81 +27,71 @@ const route = useRoute()
 const emailStore = useEmailStore()
 
 const detail = ref<Email | null>(null)
-const currentUser = ref<User | null>(null)
+const preferences = ref<Preferences | null>(null)
 const spaces = ref<Space[]>([])
 const users = ref<User[]>([])
 const knownTargets = ref<Target[]>([])
+const currentUser = ref<User | null>(null)
 
 const loadingPage = ref(true)
 const reloadingDetail = ref(false)
-const errorBanner = ref<string | null>(null)
+
+const userErrorMessage = ref<string | null>(null)
+const serverErrorDetail = ref<string | null>(null)
+const showErrorDialog = ref(false)
 
 const savingPassword = ref(false)
 const savingComment = ref(false)
-const creatingExternalTarget = ref(false)
+const togglingSubscribed = ref(false)
 
 const mutatingSpaceIds = ref<number[]>([])
 const mutatingShareUserIds = ref<number[]>([])
-const mutatingTargetIds = ref<number[]>([])
-const deletingExternalTargetIds = ref<number[]>([])
+const mutatingTargetKeys = ref<string[]>([])
 
 const passwordDraft = ref('')
 const commentDraft = ref('')
-const selectedSpaceId = ref<number | null>(null)
-const selectedShareUserId = ref<number | null>(null)
-const externalTargetAddress = ref('')
-const externalTargetCaption = ref('')
+const selectedKnownTargetAddress = ref('')
+const freeTargetAddress = ref('')
+const showFreeTargetDialog = ref(false)
+const showSharedUsersDialog = ref(false)
+const showSpacesDialog = ref(false)
+const showPasswordValue = ref(false)
+const showCommentEditor = ref(false)
+const showPasswordEditor = ref(false)
+const commentTextarea = ref<HTMLTextAreaElement | null>(null)
 
 const emailId = computed(() => Number(route.params.id ?? emailStore.id ?? 0))
 
-const assignedSpaceIds = computed(() => new Set((detail.value?.spaces ?? []).map((space) => space.id)))
-const sharedUserIds = computed(() => new Set((detail.value?.shared ?? []).map((user) => user.id)))
-const activeTargetIds = computed(
-  () => new Set((detail.value?.targets ?? []).map((target) => String(target.id))),
-)
-
-const availableSpaces = computed(() =>
-  spaces.value.filter((space) => !assignedSpaceIds.value.has(space.id)),
-)
-
-const availableUsers = computed(() =>
-  users.value.filter((user) => {
-    if (sharedUserIds.value.has(user.id)) return false
-    if (detail.value?.owner_id && user.id === detail.value.owner_id) return false
-    return true
-  }),
-)
-
-const normalizedKnownTargets = computed(() =>
-  knownTargets.value.map((target) => ({
-    id: String(target.id),
-    label: target.caption || target.name || target.address || target.email || `Target ${target.id}`,
-    address: target.address || target.email || '',
-  })),
-)
-
-const externalTargets = computed(() => {
-  const knownIds = new Set(normalizedKnownTargets.value.map((target) => target.id))
-  return (detail.value?.targets ?? [])
-    .filter((target) => !knownIds.has(String(target.id)))
-    .map((target) => ({
-      id: target.id,
-      label: getTargetLabel(target),
-      address: getTargetAddress(target),
-    }))
-})
+function normalizeKey(value: string | null | undefined) {
+  return value?.trim().toLowerCase() ?? ''
+}
 
 function getTargetAddress(target: EmailTarget | Target) {
   return target.address || target.email || ''
 }
 
-function getTargetLabel(target: EmailTarget | Target) {
-  return target.caption || target.name || getTargetAddress(target) || `Target ${target.id}`
+function getTargetUserId(target: EmailTarget | Target) {
+  return typeof target.user_id === 'number' ? target.user_id : null
 }
 
-function setDrafts(email: Email) {
-  passwordDraft.value = email.password ?? ''
-  commentDraft.value = email.comment ?? ''
+function getUserLabel(user: User | null | undefined) {
+  if (!user) return ''
+  return user.caption || user.name || user.email
+}
+
+function asArray<T>(value: unknown): T[] {
+  return Array.isArray(value) ? (value as T[]) : []
+}
+
+function normalizeDetail(email: Email): Email {
+  return {
+    ...email,
+    password: email.password ?? null,
+    comment: email.comment ?? '',
+    targets: asArray<EmailTarget>(email.targets),
+    shared: asArray(email.shared),
+    spaces: asArray(email.spaces),
+  }
 }
 
 function addPending(list: Ref<number[]>, id: number | string) {
@@ -107,20 +102,212 @@ function removePending(list: Ref<number[]>, id: number | string) {
   list.value = list.value.filter((entry) => entry !== Number(id))
 }
 
-function closeEmailDetails() {
-  emailStore.clearID(emailId.value)
-  router.push('/')
+function addTargetPending(targetKey: string) {
+  mutatingTargetKeys.value = [...mutatingTargetKeys.value, targetKey]
+}
+
+function removeTargetPending(targetKey: string) {
+  mutatingTargetKeys.value = mutatingTargetKeys.value.filter((entry) => entry !== targetKey)
+}
+
+function isTargetPending(targetKey: string) {
+  return mutatingTargetKeys.value.includes(targetKey)
+}
+
+const ownKnownTarget = computed(() => {
+  if (!currentUser.value) return null
+  return knownTargets.value.find((target) => target.user_id === currentUser.value?.id) ?? null
+})
+
+function isOwnTarget(target: EmailTarget | Target) {
+  const address = normalizeKey(getTargetAddress(target))
+  const ownAddress = normalizeKey(currentUser.value?.email)
+
+  if (ownKnownTarget.value && target.id === ownKnownTarget.value.id) {
+    return true
+  }
+
+  return !!ownAddress && address === ownAddress
+}
+
+const currentExtraTargetKeys = computed(
+  () =>
+    new Set(
+      (detail.value?.targets ?? [])
+        .filter((target) => !isOwnTarget(target))
+        .map((target) => normalizeKey(getTargetAddress(target)))
+        .filter(Boolean),
+    ),
+)
+
+const availableKnownTargets = computed(() =>
+  knownTargets.value
+    .filter((target) => {
+      const address = getTargetAddress(target)
+      if (!address) return false
+      if (isOwnTarget(target)) return false
+      return !currentExtraTargetKeys.value.has(normalizeKey(address))
+    })
+    .map((target) => {
+      const targetUser =
+        typeof target.user_id === 'number'
+          ? (users.value.find((user) => user.id === target.user_id) ?? null)
+          : null
+
+      return {
+        value: getTargetAddress(target),
+        label: getUserLabel(targetUser) || getTargetAddress(target),
+      }
+    }),
+)
+
+const extraTargets = computed(() =>
+  asArray<EmailTarget>(detail.value?.targets)
+    .filter((target) => !isOwnTarget(target))
+    .map((target) => ({
+      id: target.id,
+      address: getTargetAddress(target),
+    }))
+    .filter((target) => !!target.address),
+)
+const hasExtraTargets = computed(() => extraTargets.value.length > 0)
+
+const subscribed = computed(() => asArray<EmailTarget>(detail.value?.targets).some((target) => isOwnTarget(target)))
+const showSubscribedControl = computed(() => {
+  if (!detail.value) return false
+  if (!detail.value.is_owner) return !!detail.value.is_shared
+  return asArray<EmailTarget>(detail.value.targets).length === 0
+})
+const canManageOwnerFeatures = computed(() => !!detail.value?.is_owner)
+const canViewPassword = computed(
+  () => !!detail.value && (detail.value.is_owner || detail.value.in_space),
+)
+const canEditPassword = computed(() => !!detail.value?.is_owner)
+const canViewComment = computed(() => !!detail.value)
+const canEditComment = computed(() => !!detail.value?.is_owner)
+const sharedForOthers = computed(() =>
+  detail.value?.is_owner ? asArray(detail.value.shared).length > 0 : !!detail.value?.is_shared,
+)
+const inSpace = computed(() =>
+  detail.value?.is_owner ? asArray(detail.value.spaces).length > 0 : !!detail.value?.in_space,
+)
+const showPassword = computed(
+  () => !!preferences.value?.use_passwords || !!preferences.value?.use_password_system,
+)
+const freeTargetValid = computed(() =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(freeTargetAddress.value.trim()),
+)
+const hasPassword = computed(() => !!detail.value?.password?.trim() || !!passwordDraft.value.trim())
+const hasComment = computed(() => !!detail.value?.comment?.trim() || !!commentDraft.value.trim())
+const showPasswordSection = computed(() => hasPassword.value || showPasswordEditor.value)
+const showCommentSection = computed(() => hasComment.value || showCommentEditor.value)
+const passwordChanged = computed(() => passwordDraft.value !== (detail.value?.password ?? ''))
+const commentChanged = computed(() => commentDraft.value !== (detail.value?.comment ?? ''))
+const canSavePassword = computed(() => canEditPassword.value && passwordChanged.value)
+const canSaveComment = computed(() => canEditComment.value && commentChanged.value)
+const canAddKnownTarget = computed(() => !!selectedKnownTargetAddress.value)
+
+const sharedUsers = computed(() =>
+  users.value
+    .filter((user) => user.id !== currentUser.value?.id)
+    .map((user) => ({
+      id: user.id,
+      label: getUserLabel(user),
+      active: asArray<EmailSharedUser>(detail.value?.shared).some((sharedUser) => sharedUser.id === user.id),
+    })),
+)
+
+const spaceEntries = computed(() =>
+  spaces.value.map((space) => ({
+    id: space.id,
+    label: space.name,
+    active: asArray<EmailSpace>(detail.value?.spaces).some((assignedSpace) => assignedSpace.id === space.id),
+  })),
+)
+
+function clearError() {
+  userErrorMessage.value = null
+  serverErrorDetail.value = null
+  showErrorDialog.value = false
+}
+
+function handleError(error: unknown, fallbackUserMessage: string) {
+  const normalized = formatErrorForDisplay(error, fallbackUserMessage)
+  userErrorMessage.value = normalized.userMessage
+  serverErrorDetail.value = normalized.serverDetail
+}
+
+function setDrafts(email: Email) {
+  passwordDraft.value = email.password ?? ''
+  commentDraft.value = email.comment ?? ''
+  showPasswordEditor.value = !!email.password?.trim()
+  showCommentEditor.value = !!email.comment?.trim()
+  void nextTick(syncCommentHeight)
+}
+
+function syncCommentHeight() {
+  if (!commentTextarea.value) return
+  commentTextarea.value.style.height = 'auto'
+  commentTextarea.value.style.height = `${commentTextarea.value.scrollHeight}px`
+}
+
+async function ensureFreeTargetExists(address: string): Promise<void> {
+  const normalizedAddress = normalizeKey(address)
+  const existingTarget =
+    knownTargets.value.find(
+      (target) => normalizeKey(getTargetAddress(target)) === normalizedAddress,
+    ) ?? null
+
+  if (existingTarget) return
+
+  try {
+    await createTarget({ address })
+    knownTargets.value = await getTargets()
+  } catch (error) {
+    if (
+      error instanceof AppApiError &&
+      error.status === 400 &&
+      error.serverMessage &&
+      /already exists|existiert bereits/i.test(error.serverMessage)
+    ) {
+      knownTargets.value = await getTargets()
+      const knownTarget =
+        knownTargets.value.find(
+          (target) => normalizeKey(getTargetAddress(target)) === normalizedAddress,
+        ) ?? null
+
+      if (knownTarget) return
+    }
+
+    throw error
+  }
 }
 
 async function loadLookups() {
-  const [me, spaceList, userList, targetList] = await Promise.all([
+  const [preferencesData, detailData, ownUser] = await Promise.all([
+    getPreferences(),
+    getEmailDetails(emailId.value),
     getUser(),
+  ])
+
+  preferences.value = preferencesData
+  detail.value = normalizeDetail(detailData)
+  currentUser.value = ownUser
+  setDrafts(detail.value)
+
+  if (!detail.value.is_owner) {
+    spaces.value = []
+    users.value = []
+    knownTargets.value = []
+    return
+  }
+
+  const [spaceList, userList, targetList] = await Promise.all([
     getSpaces(),
     getUserList(),
     getTargets(),
   ])
 
-  currentUser.value = me
   spaces.value = spaceList
   users.value = userList
   knownTargets.value = targetList
@@ -130,10 +317,9 @@ async function reloadDetail() {
   reloadingDetail.value = true
 
   try {
-    detail.value = await getEmailDetails(emailId.value)
-    if (detail.value) {
-      setDrafts(detail.value)
-    }
+    const nextDetail = await getEmailDetails(emailId.value)
+    detail.value = normalizeDetail(nextDetail)
+    setDrafts(detail.value)
   } finally {
     reloadingDetail.value = false
   }
@@ -141,14 +327,35 @@ async function reloadDetail() {
 
 async function loadPage() {
   loadingPage.value = true
-  errorBanner.value = null
+  clearError()
 
   try {
-    await Promise.all([reloadDetail(), loadLookups()])
+    await loadLookups()
   } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Detailansicht konnte nicht geladen werden'
+    handleError(error, 'Detailansicht konnte nicht geladen werden.')
   } finally {
     loadingPage.value = false
+  }
+}
+
+async function toggleSubscribed() {
+  if (!detail.value) return
+
+  togglingSubscribed.value = true
+  clearError()
+
+  try {
+    if (subscribed.value) {
+      await unsubscribe(detail.value.email_id)
+    } else {
+      await subscribe(detail.value.email_id)
+    }
+
+    await reloadDetail()
+  } catch (error) {
+    handleError(error, 'Abo-Status konnte nicht geaendert werden.')
+  } finally {
+    togglingSubscribed.value = false
   }
 }
 
@@ -156,7 +363,7 @@ async function savePassword() {
   if (!detail.value) return
 
   savingPassword.value = true
-  errorBanner.value = null
+  clearError()
 
   try {
     await updateEmail({
@@ -166,7 +373,7 @@ async function savePassword() {
     })
     await reloadDetail()
   } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Passwort konnte nicht gespeichert werden'
+    handleError(error, 'Passwort konnte nicht gespeichert werden.')
   } finally {
     savingPassword.value = false
   }
@@ -176,7 +383,7 @@ async function saveComment() {
   if (!detail.value) return
 
   savingComment.value = true
-  errorBanner.value = null
+  clearError()
 
   try {
     await updateEmail({
@@ -186,168 +393,138 @@ async function saveComment() {
     })
     await reloadDetail()
   } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Kommentar konnte nicht gespeichert werden'
+    handleError(error, 'Kommentar konnte nicht gespeichert werden.')
   } finally {
     savingComment.value = false
   }
 }
 
-async function assignSpace() {
-  if (!detail.value || !selectedSpaceId.value) return
-  const spaceId = selectedSpaceId.value
+async function addTarget() {
+  if (!detail.value || !selectedKnownTargetAddress.value) return
+  const targetAddress = selectedKnownTargetAddress.value
 
-  addPending(mutatingSpaceIds, spaceId)
-  errorBanner.value = null
+  addTargetPending(targetAddress)
+  clearError()
 
   try {
-    await addEmailToSpace(detail.value.email_id, spaceId)
-    selectedSpaceId.value = null
+    await subscribe(detail.value.email_id, targetAddress)
+    selectedKnownTargetAddress.value = ''
     await reloadDetail()
   } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Space konnte nicht zugewiesen werden'
+    handleError(error, 'Target konnte nicht hinzugefuegt werden.')
   } finally {
-    removePending(mutatingSpaceIds, spaceId)
+    removeTargetPending(targetAddress)
   }
 }
 
-async function unassignSpace(spaceId: number) {
+async function addFreeTarget() {
+  if (!detail.value || !freeTargetValid.value) return
+  const targetAddress = freeTargetAddress.value.trim()
+
+  addTargetPending(targetAddress)
+  clearError()
+
+  try {
+    await ensureFreeTargetExists(targetAddress)
+    await subscribe(detail.value.email_id, targetAddress)
+    freeTargetAddress.value = ''
+    showFreeTargetDialog.value = false
+    await reloadDetail()
+  } catch (error) {
+    handleError(error, 'Freies Target konnte nicht hinzugefuegt werden.')
+  } finally {
+    removeTargetPending(targetAddress)
+  }
+}
+
+async function removeTarget(targetAddress: string) {
   if (!detail.value) return
 
-  addPending(mutatingSpaceIds, spaceId)
-  errorBanner.value = null
+  addTargetPending(targetAddress)
+  clearError()
 
   try {
-    await removeEmailFromSpace(detail.value.email_id, spaceId)
+    await unsubscribe(detail.value.email_id, targetAddress)
     await reloadDetail()
   } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Space konnte nicht entfernt werden'
+    handleError(error, 'Target konnte nicht entfernt werden.')
   } finally {
-    removePending(mutatingSpaceIds, spaceId)
+    removeTargetPending(targetAddress)
   }
 }
 
-async function addShare() {
-  if (!detail.value || !selectedShareUserId.value) return
-  const userId = selectedShareUserId.value
+async function toggleShare(userId: number, active: boolean) {
+  if (!detail.value) return
 
   addPending(mutatingShareUserIds, userId)
-  errorBanner.value = null
+  clearError()
 
   try {
-    await addEmailShare(detail.value.email_id, userId)
-    selectedShareUserId.value = null
-    await reloadDetail()
-  } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Freigabe konnte nicht hinzugefuegt werden'
-  } finally {
-    removePending(mutatingShareUserIds, userId)
-  }
-}
-
-async function removeShare(userId: number) {
-  if (!detail.value) return
-
-  addPending(mutatingShareUserIds, userId)
-  errorBanner.value = null
-
-  try {
-    await removeEmailShare(detail.value.email_id, userId)
-    await reloadDetail()
-  } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Freigabe konnte nicht entfernt werden'
-  } finally {
-    removePending(mutatingShareUserIds, userId)
-  }
-}
-
-async function makeExclusive() {
-  if (!detail.value || detail.value.shared.length === 0) return
-  if (!window.confirm('Alle Freigaben entfernen und die E-Mail wieder exklusiv machen?')) return
-
-  errorBanner.value = null
-
-  try {
-    for (const user of detail.value.shared) {
-      addPending(mutatingShareUserIds, user.id)
-      await removeEmailShare(detail.value.email_id, user.id)
-      removePending(mutatingShareUserIds, user.id)
-    }
-    await reloadDetail()
-  } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'E-Mail konnte nicht exklusiv gemacht werden'
-  } finally {
-    mutatingShareUserIds.value = []
-  }
-}
-
-async function toggleKnownTarget(targetId: string) {
-  if (!detail.value) return
-
-  addPending(mutatingTargetIds, targetId)
-  errorBanner.value = null
-
-  try {
-    if (activeTargetIds.value.has(targetId)) {
-      await unsubscribe(detail.value.email_id, targetId)
+    if (active) {
+      await removeEmailShare(detail.value.email_id, userId)
     } else {
-      await subscribe(detail.value.email_id, targetId)
+      await addEmailShare(detail.value.email_id, userId)
     }
     await reloadDetail()
   } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Target konnte nicht aktualisiert werden'
+    handleError(error, 'Freigabe konnte nicht geaendert werden.')
   } finally {
-    removePending(mutatingTargetIds, targetId)
+    removePending(mutatingShareUserIds, userId)
   }
 }
 
-async function createExternalTarget() {
-  if (!externalTargetAddress.value.trim()) {
-    errorBanner.value = 'Die externe Zieladresse ist ein Pflichtfeld.'
-    return
-  }
+async function toggleSpace(spaceId: number, active: boolean) {
+  if (!detail.value) return
 
-  creatingExternalTarget.value = true
-  errorBanner.value = null
+  addPending(mutatingSpaceIds, spaceId)
+  clearError()
 
   try {
-    await createTarget({
-      address: externalTargetAddress.value.trim(),
-      caption: externalTargetCaption.value.trim() || undefined,
-    })
-    externalTargetAddress.value = ''
-    externalTargetCaption.value = ''
-    await Promise.all([reloadDetail(), loadLookups()])
+    if (active) {
+      await removeEmailFromSpace(detail.value.email_id, spaceId)
+    } else {
+      await addEmailToSpace(detail.value.email_id, spaceId)
+    }
+    await reloadDetail()
   } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Externes Target konnte nicht angelegt werden'
+    handleError(error, 'Space-Zuweisung konnte nicht geaendert werden.')
   } finally {
-    creatingExternalTarget.value = false
+    removePending(mutatingSpaceIds, spaceId)
   }
 }
 
-async function removeExternalTarget(targetId: number) {
-  addPending(deletingExternalTargetIds, targetId)
-  errorBanner.value = null
+function closeEmailDetails() {
+  emailStore.clearID(emailId.value)
+  router.push('/')
+}
 
-  try {
-    await deleteTarget(targetId)
-    await Promise.all([reloadDetail(), loadLookups()])
-  } catch (error) {
-    errorBanner.value = error instanceof Error ? error.message : 'Externes Target konnte nicht entfernt werden'
-  } finally {
-    removePending(deletingExternalTargetIds, targetId)
-  }
+function statusComponent(active: boolean) {
+  return active ? GlowingButtonBox : GlowingBackButton
 }
 
 onMounted(loadPage)
+
+watch(commentDraft, () => {
+  void nextTick(syncCommentHeight)
+})
+
+watch(showCommentSection, (visible) => {
+  if (!visible) return
+  void nextTick(syncCommentHeight)
+})
 </script>
 
 <template>
   <div class="container detail-page">
     <div class="page-header">
       <GlowingBackButton icon="arrow_left_alt" class="btn-small" @click="closeEmailDetails" />
-      <button class="ghost-button" :disabled="!detail?.email" @click="copyToClipboard(detail?.email ?? '')">
-        Kopieren
-      </button>
+      <GlowingButtonBox
+        class="compact-copy-button very-small"
+        icon="content_copy"
+        :name="''"
+        :disabled="!detail?.email"
+        @click="copyToClipboard(detail?.email ?? '')"
+      />
     </div>
 
     <div v-if="loadingPage" class="section">
@@ -355,184 +532,191 @@ onMounted(loadPage)
     </div>
 
     <template v-else-if="detail">
-      <div class="section hero">
-        <p class="eyebrow">E-Mail-Detail</p>
-        <h2>{{ detail.email }}</h2>
-        <div class="pill-row">
-          <span class="pill" :class="{ active: detail.active }">{{ detail.active ? 'Aktiv' : 'Inaktiv' }}</span>
-          <span class="pill" :class="{ active: detail.is_owner }">{{ detail.is_owner ? 'Owner' : 'Shared User' }}</span>
-          <span class="pill" :class="{ active: detail.is_shared }">
-            {{ detail.shared.length > 0 ? `${detail.shared.length} Shares` : 'Keine Shares' }}
-          </span>
-        </div>
+      <section class="section hero">
+        <h3>{{ detail.email }}</h3>
         <p v-if="reloadingDetail" class="muted">Aktualisiere Daten ...</p>
-      </div>
-
-      <p v-if="errorBanner" class="error-banner">{{ errorBanner }}</p>
-
-      <section class="section">
-        <div class="section-title-row">
-          <h3>Stammdaten</h3>
-        </div>
-
-        <label class="field">
-          <span>Passwort</span>
-          <input v-model="passwordDraft" type="text" placeholder="Passwort setzen oder leeren" />
-        </label>
-        <button class="primary-button" :disabled="savingPassword || !detail.is_owner" @click="savePassword">
-          {{ savingPassword ? 'Speichert ...' : 'Passwort speichern' }}
-        </button>
-
-        <label class="field">
-          <span>Kommentar</span>
-          <textarea v-model="commentDraft" rows="4" placeholder="Kommentar zur E-Mail"></textarea>
-        </label>
-        <button class="primary-button" :disabled="savingComment || !detail.is_owner" @click="saveComment">
-          {{ savingComment ? 'Speichert ...' : 'Kommentar speichern' }}
-        </button>
       </section>
 
+      <div v-if="userErrorMessage" class="error-banner">
+        <p>{{ userErrorMessage }}</p>
+        <button
+          v-if="serverErrorDetail"
+          class="ghost-button compact-button"
+          @click="showErrorDialog = true"
+        >
+          Technische Details
+        </button>
+      </div>
+
       <section class="section">
+        <div class="status-grid">
+          <component
+            :is="statusComponent(subscribed)"
+            v-if="showSubscribedControl"
+            class="status-action"
+            :icon="subscribed ? 'notifications' : 'notifications_off'"
+            :name="''"
+            :disabled="togglingSubscribed"
+            @click="toggleSubscribed"
+          />
+
+          <component
+            v-if="canManageOwnerFeatures"
+            :is="statusComponent(sharedForOthers)"
+            class="status-action"
+            :icon="sharedForOthers ? 'groups' : 'group_off'"
+            :name="''"
+            @click="showSharedUsersDialog = true"
+          />
+
+          <component
+            v-if="canManageOwnerFeatures"
+            :is="statusComponent(inSpace)"
+            class="status-action"
+            :icon="inSpace ? 'visibility' : 'visibility_off'"
+            :name="''"
+            @click="showSpacesDialog = true"
+          />
+        </div>
+      </section>
+
+      <section
+        v-if="showPassword && canViewPassword && (showPasswordSection || canEditPassword)"
+        class="section"
+      >
         <div class="section-title-row">
-          <h3>Targets</h3>
-          <span class="muted small">{{ currentUser?.caption || currentUser?.name || currentUser?.email }}</span>
+          <h3>Passwort</h3>
+          <GlowingButtonBox
+            v-if="canEditPassword && !showPasswordSection"
+            class="header-action-button btn-small"
+            icon="add"
+            :name="''"
+            @click="showPasswordEditor = true"
+          />
+          <GlowingButtonBox
+            v-else-if="canSavePassword"
+            class="header-action-button btn-small"
+            icon="save"
+            :name="''"
+            :disabled="savingPassword"
+            @click="savePassword"
+          />
         </div>
 
-        <div class="target-list">
-          <button
-            v-for="target in normalizedKnownTargets"
-            :key="target.id"
-            class="target-toggle"
-            :class="{ active: activeTargetIds.has(target.id) }"
-            :disabled="mutatingTargetIds.includes(Number(target.id)) || !detail.active"
-            @click="toggleKnownTarget(target.id)"
-          >
-            <span>{{ target.label }}</span>
-            <small>{{ activeTargetIds.has(target.id) ? 'abonniert' : 'nicht abonniert' }}</small>
-          </button>
-          <p v-if="normalizedKnownTargets.length === 0" class="muted">Keine bekannten User-Targets gefunden.</p>
+        <label v-if="showPasswordSection" class="field">
+          <div class="field-inline-row">
+            <input
+              v-model="passwordDraft"
+              :type="showPasswordValue ? 'text' : 'password'"
+              name="email_password_note"
+              placeholder="Passwort setzen oder leeren"
+              autocomplete="off"
+              autocapitalize="off"
+              autocorrect="off"
+              spellcheck="false"
+              data-lpignore="true"
+              data-1p-ignore="true"
+              :readonly="!canEditPassword"
+            />
+            <GlowingBackButton
+              class="header-action-button visibility-toggle-button very-small"
+              :icon="showPasswordValue ? 'visibility_off' : 'visibility'"
+              :name="''"
+              @click="showPasswordValue = !showPasswordValue"
+            />
+          </div>
+        </label>
+      </section>
+
+      <section v-if="canViewComment && (showCommentSection || canEditComment)" class="section">
+        <div class="section-title-row">
+          <h3>Kommentar</h3>
+          <GlowingButtonBox
+            v-if="canEditComment && !showCommentSection"
+            class="header-action-button btn-small"
+            icon="add"
+            :name="''"
+            @click="showCommentEditor = true"
+          />
+          <GlowingButtonBox
+            v-else-if="canSaveComment"
+            class="header-action-button btn-small"
+            icon="save"
+            :name="''"
+            :disabled="savingComment"
+            @click="saveComment"
+          />
+        </div>
+
+        <label v-if="showCommentSection" class="field">
+          <textarea
+            ref="commentTextarea"
+            v-model="commentDraft"
+            class="comment-textarea"
+            name="email_comment_note"
+            rows="1"
+            placeholder="Kommentar zur E-Mail"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
+            :readonly="!canEditComment"
+          ></textarea>
+        </label>
+      </section>
+
+      <section v-if="canManageOwnerFeatures" class="section">
+        <div v-if="hasExtraTargets" class="section-title-row">
+          <h3>Weiterleitungen</h3>
+        </div>
+
+        <div v-if="hasExtraTargets" class="stack-list">
+          <div v-for="target in extraTargets" :key="target.address" class="list-card">
+            <strong>{{ target.address }}</strong>
+            <GlowingBackButton
+              class="compact-icon-button btn-small"
+              :disabled="isTargetPending(target.address)"
+              icon="delete"
+              :name="''"
+              @click="removeTarget(target.address)"
+            />
+          </div>
         </div>
 
         <div class="subsection">
-          <h4>Externe Targets</h4>
-          <div v-if="externalTargets.length > 0" class="stack-list">
-            <div v-for="target in externalTargets" :key="target.id" class="list-card">
-              <div>
-                <strong>{{ target.label }}</strong>
-                <p class="muted small">{{ target.address }}</p>
-              </div>
-              <button
-                class="danger-button"
-                :disabled="deletingExternalTargetIds.includes(target.id) || !detail.is_owner"
-                @click="removeExternalTarget(target.id)"
+          <div class="section-title-row subsection-title-row">
+            <h3>Target hinzufuegen</h3>
+            <GlowingButtonBox
+              v-if="canAddKnownTarget"
+              class="header-action-button btn-small"
+              icon="save"
+              :name="''"
+              @click="addTarget"
+            />
+          </div>
+
+          <label class="field">
+            <select v-model="selectedKnownTargetAddress">
+              <option value="">Target auswaehlen</option>
+              <option
+                v-for="target in availableKnownTargets"
+                :key="target.value"
+                :value="target.value"
               >
-                Entfernen
-              </button>
-            </div>
-          </div>
-          <p v-else class="muted">Keine externen Targets an dieser E-Mail erkannt.</p>
-        </div>
-
-        <div class="subsection form-grid">
-          <h4>Externes Target anlegen</h4>
-          <label class="field">
-            <span>E-Mail-Adresse</span>
-            <input v-model="externalTargetAddress" type="email" placeholder="ziel@example.org" />
-          </label>
-          <label class="field">
-            <span>Caption</span>
-            <input v-model="externalTargetCaption" type="text" placeholder="optional" />
-          </label>
-          <button class="primary-button" :disabled="creatingExternalTarget || !detail.is_owner" @click="createExternalTarget">
-            {{ creatingExternalTarget ? 'Legt an ...' : 'Externes Target speichern' }}
-          </button>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-title-row">
-          <h3>Shares</h3>
-          <button
-            v-if="detail.shared.length > 0"
-            class="ghost-button"
-            :disabled="!detail.is_owner"
-            @click="makeExclusive"
-          >
-            Wieder exklusiv machen
-          </button>
-        </div>
-
-        <div v-if="detail.shared.length > 0" class="stack-list">
-          <div v-for="user in detail.shared" :key="user.id" class="list-card">
-            <div>
-              <strong>{{ user.caption || user.name || user.email }}</strong>
-              <p class="muted small">{{ user.email }}</p>
-            </div>
-            <button
-              class="danger-button"
-              :disabled="mutatingShareUserIds.includes(user.id) || !detail.is_owner"
-              @click="removeShare(user.id)"
-            >
-              Entfernen
-            </button>
-          </div>
-        </div>
-        <p v-else class="muted">Diese E-Mail ist aktuell nur fuer den Owner sichtbar.</p>
-
-        <div class="subsection form-grid">
-          <label class="field">
-            <span>User freigeben</span>
-            <select v-model="selectedShareUserId" :disabled="!detail.is_owner">
-              <option :value="null">User auswaehlen</option>
-              <option v-for="user in availableUsers" :key="user.id" :value="user.id">
-                {{ user.caption || user.name || user.email }}
+                {{ target.label }}
               </option>
             </select>
           </label>
-          <button class="primary-button" :disabled="!selectedShareUserId || !detail.is_owner" @click="addShare">
-            Share hinzufuegen
-          </button>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-title-row">
-          <h3>Spaces</h3>
-        </div>
-
-        <div v-if="detail.spaces.length > 0" class="stack-list">
-          <div v-for="space in detail.spaces" :key="space.id" class="list-card">
-            <div>
-              <strong>{{ space.name }}</strong>
-              <p v-if="space.users?.length" class="muted small">
-                Mitglieder: {{ space.users.map((member) => member.caption || member.name || member.email).join(', ') }}
-              </p>
-              <p v-else class="muted small">Mitglieder laut Detail-Response nicht vorhanden.</p>
-            </div>
-            <button
-              class="danger-button"
-              :disabled="mutatingSpaceIds.includes(space.id) || !detail.is_owner"
-              @click="unassignSpace(space.id)"
-            >
-              Entfernen
-            </button>
+          <div class="subsection-actions centered">
+            <GlowingButtonBox
+              class="header-action-button very-small"
+              icon="add"
+              :name="''"
+              @click="showFreeTargetDialog = true"
+            />
           </div>
-        </div>
-        <p v-else class="muted">Diese E-Mail ist aktuell keinem Space zugewiesen.</p>
-
-        <div class="subsection form-grid">
-          <label class="field">
-            <span>Space zuweisen</span>
-            <select v-model="selectedSpaceId" :disabled="!detail.is_owner">
-              <option :value="null">Space auswaehlen</option>
-              <option v-for="space in availableSpaces" :key="space.id" :value="space.id">
-                {{ space.name }}
-              </option>
-            </select>
-          </label>
-          <button class="primary-button" :disabled="!selectedSpaceId || !detail.is_owner" @click="assignSpace">
-            Space zuweisen
-          </button>
         </div>
       </section>
     </template>
@@ -540,10 +724,131 @@ onMounted(loadPage)
     <div v-else class="section">
       <p class="error-banner">Kein Detaildatensatz gefunden.</p>
     </div>
+
+    <div
+      v-if="showErrorDialog && serverErrorDetail"
+      class="modal-backdrop"
+      @click.self="showErrorDialog = false"
+    >
+      <div class="modal-panel">
+        <h4>Server-Fehlermeldung</h4>
+        <pre>{{ serverErrorDetail }}</pre>
+        <button class="primary-button" @click="showErrorDialog = false">Schliessen</button>
+      </div>
+    </div>
+
+    <div
+      v-if="showFreeTargetDialog"
+      class="modal-backdrop"
+      @click.self="showFreeTargetDialog = false"
+    >
+      <div class="modal-panel">
+        <h4>Freies Target</h4>
+        <label class="field">
+          <span>E-Mail-Adresse</span>
+          <input
+            v-model="freeTargetAddress"
+            type="email"
+            name="free_target_email"
+            placeholder="ziel@example.org"
+            autocomplete="off"
+            autocapitalize="off"
+            autocorrect="off"
+            spellcheck="false"
+            data-lpignore="true"
+            data-1p-ignore="true"
+          />
+        </label>
+        <p v-if="freeTargetAddress.trim() && !freeTargetValid" class="input-error">
+          Bitte eine gültige E-Mail-Adresse eingeben.
+        </p>
+        <div class="dialog-actions">
+          <GlowingBackButton
+            class="header-action-button btn-small"
+            icon="arrow_left_alt"
+            :name="''"
+            @click="showFreeTargetDialog = false"
+          />
+          <GlowingButtonBox
+            class="header-action-button btn-small"
+            icon="save"
+            :name="''"
+            :disabled="!freeTargetValid"
+            @click="addFreeTarget"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="detail?.is_owner && showSharedUsersDialog"
+      class="modal-backdrop"
+      @click.self="showSharedUsersDialog = false"
+    >
+      <div class="modal-panel">
+        <h4 class="dialog-title">Für andere freigeben</h4>
+        <div class="stack-list">
+          <div v-for="user in sharedUsers" :key="user.id" class="list-card">
+            <strong>{{ user.label }}</strong>
+            <component
+              :is="statusComponent(user.active)"
+              class="compact-icon-button compact-toggle-button very-small"
+              :icon="user.active ? 'groups' : 'group_off'"
+              :name="''"
+              :disabled="mutatingShareUserIds.includes(user.id)"
+              @click="toggleShare(user.id, user.active)"
+            />
+          </div>
+        </div>
+        <div class="dialog-actions centered">
+          <GlowingBackButton
+            class="header-action-button btn-small"
+            icon="arrow_left_alt"
+            :name="''"
+            @click="showSharedUsersDialog = false"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="detail?.is_owner && showSpacesDialog"
+      class="modal-backdrop"
+      @click.self="showSpacesDialog = false"
+    >
+      <div class="modal-panel">
+        <h4 class="dialog-title">Für Gruppe bereitstellen</h4>
+        <div class="stack-list">
+          <div v-for="space in spaceEntries" :key="space.id" class="list-card">
+            <strong>{{ space.label }}</strong>
+            <component
+              :is="statusComponent(space.active)"
+              class="compact-icon-button compact-toggle-button very-small"
+              :icon="space.active ? 'visibility' : 'visibility_off'"
+              :name="''"
+              :disabled="mutatingSpaceIds.includes(space.id)"
+              @click="toggleSpace(space.id, space.active)"
+            />
+          </div>
+        </div>
+        <div class="dialog-actions centered">
+          <GlowingBackButton
+            class="header-action-button btn-small"
+            icon="arrow_left_alt"
+            :name="''"
+            @click="showSpacesDialog = false"
+          />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.very-small {
+  width: 70px;
+}
+
 .detail-page {
   width: 100%;
   max-width: 42rem;
@@ -561,43 +866,28 @@ onMounted(loadPage)
 }
 
 .section {
-  background: rgba(20, 25, 22, 0.8);
-  border: 1px solid rgba(244, 68, 73, 0.28);
-  box-shadow: 0 0 18px rgba(244, 68, 73, 0.1);
-  border-radius: 18px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  position: relative;
+  padding: 1rem 0;
+  margin-bottom: 0;
+  min-width: 0;
 }
 
-.hero h2 {
-  margin: 0.2rem 0 0.75rem;
-  word-break: break-word;
+.hero {
+  text-align: center;
 }
 
 .eyebrow {
-  margin: 0;
+  margin: 0 0 0.4rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-secondary);
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.8rem;
 }
 
-.pill-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.pill {
-  border: 1px solid rgba(250, 220, 151, 0.3);
-  color: var(--color-secondary);
-  border-radius: 999px;
-  padding: 0.35rem 0.7rem;
-  font-size: 0.85rem;
-}
-
-.pill.active {
-  background: rgba(250, 220, 151, 0.08);
+.hero h2,
+.section h3,
+.modal-panel h4 {
+  margin-top: 0;
 }
 
 .section-title-row {
@@ -608,16 +898,101 @@ onMounted(loadPage)
   margin-bottom: 0.75rem;
 }
 
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.dialog-title {
+  text-align: center;
+}
+
+.status-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-evenly;
+  gap: 0.75rem;
+}
+
+.status-card {
+  background: var(--color-background);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  min-height: 7.5rem;
+  padding: 0.9rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  text-align: center;
+}
+
+.status-title,
+.field span {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.92rem;
+}
+
+.status-action {
+  flex: 1 1 8.5rem;
+  max-width: 12rem;
+}
+
+.status-action:deep(.btn) {
+  width: 100%;
+  min-height: 4.1rem;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.compact-copy-button:deep(.btn) {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compact-copy-button:deep(.material-symbols-rounded) {
+  font-size: 1.35rem;
+}
+
+.header-action-button:deep(.btn) {
+  width: 2.75rem;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-action-button:deep(.material-symbols-rounded) {
+  font-size: 1.35rem;
+}
+
+.visibility-toggle-button:deep(.btn) {
+  width: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.status-action:deep(.material-symbols-rounded) {
+  font-size: 2rem;
+}
+
 .field {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  margin-bottom: 0.85rem;
-}
-
-.field span {
-  color: var(--color-secondary);
-  font-size: 0.92rem;
+  margin-bottom: 0.7rem;
+  min-width: 0;
 }
 
 input,
@@ -625,97 +1000,173 @@ textarea,
 select {
   width: 100%;
   box-sizing: border-box;
+  max-width: 100%;
 }
 
 textarea {
   resize: vertical;
   min-height: 6rem;
   padding: 0.8rem 1rem;
-  background-color: transparent;
+  background-color: var(--color-background-secondary);
   font-family: inherit;
-  color: inherit;
+  color: var(--color-secondary);
   font-size: 1rem;
-  border: 1px solid var(--color-primary);
-  border-radius: 10px;
-  caret-color: var(--color-primary-transparent);
+  border: 1px solid var(--color-secondary);
+  border-radius: 5px;
+  caret-color: var(--color-secondary);
+}
+
+input[readonly],
+textarea[readonly] {
+  opacity: 0.82;
 }
 
 .primary-button,
 .danger-button,
 .ghost-button {
   min-height: 2.75rem;
-  border-radius: 12px;
+  border-radius: 5px;
   border: 1px solid transparent;
   font: inherit;
   padding: 0.7rem 1rem;
+  background: var(--color-background);
 }
 
 .primary-button {
   width: 100%;
-  margin-bottom: 0.85rem;
-  background: rgba(244, 68, 73, 0.12);
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
 
 .danger-button {
-  background: rgba(244, 68, 73, 0.08);
   border-color: rgba(244, 68, 73, 0.45);
   color: var(--color-primary);
 }
 
 .ghost-button {
-  background: transparent;
-  border-color: rgba(250, 220, 151, 0.35);
-  color: var(--color-secondary);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.ghost-button.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.compact-button {
+  width: auto;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.75rem;
+}
+
+.icon-button {
+  width: 2.4rem;
+  min-width: 2.4rem;
+  min-height: 2.4rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.compact-icon-button:deep(.btn) {
+  width: 2.6rem;
+  min-width: 2.6rem;
+  min-height: 2.6rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compact-icon-button:deep(.material-symbols-rounded) {
+  font-size: 1.35rem;
+}
+
+.compact-toggle-button:deep(.btn) {
+  width: 2.1rem;
+  min-width: 2.1rem;
+  max-width: 20%;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
 }
 
 button:disabled {
   opacity: 0.55;
 }
 
-.target-list,
 .stack-list {
   display: grid;
   gap: 0.75rem;
+  min-width: 0;
 }
 
-.target-toggle,
 .list-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
   width: 100%;
-  border-radius: 14px;
-  border: 1px solid rgba(250, 220, 151, 0.2);
-  background: rgba(250, 220, 151, 0.04);
-  padding: 0.85rem 0.95rem;
+  background: var(--color-background);
+  border-radius: 5px;
   box-sizing: border-box;
   color: inherit;
   text-align: left;
+  min-width: 0;
 }
 
-.target-toggle {
-  flex-direction: column;
-  align-items: flex-start;
+.modal-panel .list-card {
+  justify-content: space-between;
 }
 
-.target-toggle.active {
-  border-color: var(--color-secondary);
-  background: rgba(250, 220, 151, 0.12);
+.list-card strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
-.subsection {
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid rgba(250, 220, 151, 0.15);
+.subsection-title-row {
+  margin-bottom: 0.5rem;
 }
 
-.form-grid h4,
-.subsection h4,
-.section h3 {
-  margin-top: 0;
+.subsection-actions,
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.subsection-actions.centered {
+  justify-content: center;
+  margin-top: 0.85rem;
+}
+
+.dialog-actions.centered {
+  justify-content: center;
+}
+
+.field-inline-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.6rem;
+}
+
+.field-inline-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.comment-textarea {
+  min-height: 0;
+  overflow-y: hidden;
+}
+
+.input-error {
+  margin: 0 0 0.85rem;
+  color: #f4c542;
 }
 
 .muted {
@@ -729,20 +1180,93 @@ button:disabled {
 .error-banner {
   margin: 0 0 1rem;
   padding: 0.85rem 1rem;
-  border-radius: 12px;
-  background: rgba(244, 68, 73, 0.14);
+  background: var(--color-background);
+  border-radius: 5px;
   border: 1px solid rgba(244, 68, 73, 0.35);
-  color: #ffd7d7;
 }
 
-@media (min-width: 768px) {
+.error-banner p {
+  margin: 0;
+  color: var(--color-secondary);
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 100;
+  cursor: pointer;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.modal-panel {
+  width: min(760px, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  max-height: calc(100vh - 2rem);
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--color-background);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 1rem;
+  cursor: default;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.modal-panel pre {
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  background: var(--color-background);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  padding: 0.75rem;
+  margin-bottom: 0.8rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
   .detail-page {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding: 0.75rem 0.75rem 2rem;
+  }
+
+  .page-header {
+    padding: 0.35rem 0 0.75rem;
+  }
+
+  .section {
+    padding: 0.85rem 0;
+  }
+
+  .status-grid {
+    gap: 0.55rem;
+  }
+
+  .status-action {
+    flex-basis: calc(50% - 0.55rem);
+    max-width: none;
+  }
+
+  .status-title {
+    font-size: 0.82rem;
   }
 
   .list-card {
-    align-items: start;
+    padding: 0.75rem 0.8rem;
+  }
+
+  .modal-panel {
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+    max-height: calc(100vh - 2rem);
+    padding: 0.9rem;
   }
 }
 </style>

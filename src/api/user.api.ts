@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth.ts'
+import { ensureOk } from '@/api/httpError.ts'
 import type { User } from '@/types/user.type.ts'
 
 const url = 'https://api.blackserver.de/spamurai/user'
@@ -15,11 +16,7 @@ export async function getUser(): Promise<User> {
     }
   })
 
-  if (!res.ok) {
-    throw new Error(
-      'Failed to get user.',
-    )
-  }
+  await ensureOk(res, 'Nutzerprofil konnte nicht geladen werden.', `GET ${url}`)
 
   return (await res.json()) as User
 }
@@ -35,9 +32,7 @@ export async function getUserList(): Promise<User[]> {
     },
   })
 
-  if (!res.ok) {
-    throw new Error('Failed to get user list.')
-  }
+  await ensureOk(res, 'Nutzerliste konnte nicht geladen werden.', `GET ${listUrl}`)
 
   return (await res.json()) as User[]
 }

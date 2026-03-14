@@ -89,7 +89,19 @@ function openEmailDetails(id: number) {
 <template>
   <div class="container">
     <div class="row gap">
-      <input type="text" placeholder="E-Mail" v-model="needle" />
+      <input
+        id="email-search"
+        v-model="needle"
+        type="search"
+        name="email_search"
+        placeholder="E-Mail"
+        autocomplete="off"
+        autocapitalize="off"
+        autocorrect="off"
+        spellcheck="false"
+        data-lpignore="true"
+        data-1p-ignore="true"
+      />
       <GlowingButtonBox @click="newEmail" name="+" class="btn-small" />
     </div>
     <div class="list">

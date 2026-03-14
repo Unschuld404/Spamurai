@@ -1,6 +1,7 @@
 export interface EmailTarget {
   id: number
   user_id?: number | null
+  active?: boolean
   address?: string | null
   email?: string | null
   caption?: string | null

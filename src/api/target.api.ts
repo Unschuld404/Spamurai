@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth.ts'
+import { ensureOk } from '@/api/httpError.ts'
 import type { Target } from '@/types/target.type.ts'
 
 const url = 'https://api.blackserver.de/spamurai/target'
@@ -14,9 +15,7 @@ export async function getTargets(): Promise<Target[]> {
     },
   })
 
-  if (!res.ok) {
-    throw new Error('Fehler bei: Ziele finden.')
-  }
+  await ensureOk(res, 'Targets konnten nicht geladen werden.', `GET ${url}`)
 
   return (await res.json()) as Target[]
 }
@@ -27,7 +26,6 @@ export async function getTarget(): Promise<Target[]> {
 
 export async function createTarget(payload: {
   address: string
-  caption?: string
 }): Promise<{ id: number }> {
   const auth = useAuthStore()
 
@@ -40,9 +38,7 @@ export async function createTarget(payload: {
     body: JSON.stringify(payload),
   })
 
-  if (!res.ok) {
-    throw new Error('Externes Target konnte nicht gespeichert werden')
-  }
+  await ensureOk(res, 'Externes Target konnte nicht gespeichert werden.', `POST ${url}`)
 
   return (await res.json()) as { id: number }
 }
@@ -58,7 +54,5 @@ export async function deleteTarget(targetId: number): Promise<void> {
     },
   })
 
-  if (!res.ok) {
-    throw new Error('Target konnte nicht entfernt werden')
-  }
+  await ensureOk(res, 'Target konnte nicht entfernt werden.', `DELETE ${url}/${targetId}`)
 }

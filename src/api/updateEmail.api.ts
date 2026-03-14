@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth.ts'
+import { ensureOk } from '@/api/httpError.ts'
 import type { SaveEmailPayload } from '@/types/email.type.ts'
 
 const url = 'https://api.blackserver.de/spamurai/email'
@@ -15,7 +16,5 @@ export async function updateEmail(data: SaveEmailPayload): Promise<void> {
     body: JSON.stringify(data),
   })
 
-  if (!res.ok) {
-    throw new Error('POST /email fehlgeschlagen')
-  }
+  await ensureOk(res, 'E-Mail konnte nicht gespeichert werden.', `POST ${url}`)
 }

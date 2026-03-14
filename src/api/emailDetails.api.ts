@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth.ts'
+import { ensureOk } from '@/api/httpError.ts'
 import type { Email } from '@/types/email.type.ts'
 
 const url = 'https://api.blackserver.de/spamurai/email'
@@ -14,9 +15,7 @@ export async function getEmailDetails(emailId: number | null): Promise<Email> {
     },
   })
 
-  if (!res.ok) {
-    throw new Error(`Failed to get email details for email ${emailId}`)
-  }
+  await ensureOk(res, 'E-Mail-Details konnten nicht geladen werden.', `GET ${url}/${emailId}`)
 
   return (await res.json()) as Email
 }

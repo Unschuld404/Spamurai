@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/stores/auth.ts'
+import { ensureOk } from '@/api/httpError.ts'
 
 const baseUrl = 'https://api.blackserver.de/spamurai'
 
@@ -13,9 +14,11 @@ export async function addEmailShare(emailId: number, userId: number): Promise<vo
     },
   })
 
-  if (!res.ok) {
-    throw new Error('Freigabe konnte nicht hinzugefuegt werden')
-  }
+  await ensureOk(
+    res,
+    'Freigabe konnte nicht hinzugefuegt werden.',
+    `PUT ${baseUrl}/email/${emailId}/user/${userId}`,
+  )
 }
 
 export async function removeEmailShare(emailId: number, userId: number): Promise<void> {
@@ -29,7 +32,9 @@ export async function removeEmailShare(emailId: number, userId: number): Promise
     },
   })
 
-  if (!res.ok) {
-    throw new Error('Freigabe konnte nicht entfernt werden')
-  }
+  await ensureOk(
+    res,
+    'Freigabe konnte nicht entfernt werden.',
+    `DELETE ${baseUrl}/email/${emailId}/user/${userId}`,
+  )
 }
