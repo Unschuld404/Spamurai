@@ -171,8 +171,13 @@ const extraTargets = computed(() =>
     .filter((target) => !!target.address),
 )
 const hasExtraTargets = computed(() => extraTargets.value.length > 0)
+const ownEmailTargets = computed(() =>
+  asArray<EmailTarget>(detail.value?.targets).filter(
+    (target) => getTargetUserId(target) === currentUser.value?.id,
+  ),
+)
 
-const subscribed = computed(() => asArray<EmailTarget>(detail.value?.targets).some((target) => isOwnTarget(target)))
+const subscribed = computed(() => !!detail.value?.has_target)
 const showSubscribedControl = computed(() => {
   if (!detail.value) return false
   if (!detail.value.is_owner) return !!detail.value.is_shared
@@ -346,7 +351,16 @@ async function toggleSubscribed() {
 
   try {
     if (subscribed.value) {
-      await unsubscribe(detail.value.email_id)
+      if (ownEmailTargets.value.length > 0) {
+        await Promise.all(
+          ownEmailTargets.value.map((target) => {
+            const targetKey = getTargetAddress(target) || target.id
+            return unsubscribe(detail.value!.email_id, targetKey)
+          }),
+        )
+      } else {
+        await unsubscribe(detail.value.email_id)
+      }
     } else {
       await subscribe(detail.value.email_id)
     }
