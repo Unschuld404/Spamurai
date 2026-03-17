@@ -13,7 +13,7 @@ defineProps({
   <div class="item noTarget inactive" v-if="isOwner && !active">{{ email }}</div>
   <div class="item noTarget" v-if="isOwner && active && !hasTarget">{{ email }}</div>
   <div class="item" v-if="isOwner && active && hasTarget">{{ email }}</div>
-  <div class="item noTarget row" v-if="!isOwner && active && inSpace">
+  <div class="item noTarget row" v-if="!isOwner && active && inSpace && !isShared">
     {{ email }}<span class="material-symbols-rounded"> eye_tracking </span>
   </div>
   <div class="item noTarget" v-if="!isOwner && active && isShared && !hasTarget">
@@ -45,8 +45,8 @@ defineProps({
 }
 
 .noTarget {
-  border-color: var(--color-primary-transparent);
-  background-color: var(--color-background-primary);
-  color: var(--color-primary);
+  border-color: var(--color-accent-transparent);
+  background-color: var(--color-background-accent);
+  color: var(--color-accent);
 }
 </style>
